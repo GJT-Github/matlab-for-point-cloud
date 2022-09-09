@@ -20,7 +20,12 @@ function [p0,q0,fep,feq,feq0,n1,d1,n2,d2]= featurePoint(P,Q,pn,qn,k)      %ÌØÕ÷µ
 %   
 % d1   £ºÄ¿±êµãÔÆ 400¸öÁÚÓòµã ¾àÀë ´ÓĞ¡µ½´óÅÅĞò
 % d2   £ºÔ´µãÔÆ 400¸öÁÚÓòµãµã ¾àÀë ´ÓĞ¡µ½´óÅÅĞò
+%
+%  Author£ºGJT 
+%  E-mail£ºgjt0114@outlook.com
 
+
+%%
 %%¼ÆËãÌØÕ÷¶È
 pt=zeros(1,size(P,2));                  %´´½¨1ĞĞPÕóÁĞÊıÁĞ0Õó  
 qt=zeros(1,size(Q,2));
@@ -75,16 +80,9 @@ p0=P(:,ptt);                            %ÌáÈ¡PÕóÖĞ Ğ¡ÓÚÌØÕ÷¶ÈÁ¿¾ùÖµ µÄµã
 q0=Q(:,qtt);
 
 
+%»æÖÆ´ÖÌáÈ¡µÄÌØÕ÷µã
+displayFirstPickKeyPoint(p0,q0);
 
-
-% figure;                                 %ÏÔÊ¾p0 q0ÌØÕ÷µã£¬ÌØÕ÷Îª¸Ãµã·¨ÏòÁ¿µã³É×î½ü8¸öµãµÄ·¨ÏòÁ¿¾ø¶ÔÖµÀÛ¼ÓµÄÆ½¾ùÖµĞ¡ÓÚËùÓĞÆ½¾ùÖµµÄÆ½¾ù
-axe(2)=subplot(222);
-plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
-hold on
-plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
-title('Ä£°åµãÔÆÓëÄ¿±êµãÔÆµÄÌØÕ÷µã´ÖÌáÈ¡')
-view(3)
-% daspect([1 1 1]);                      %ÈıÎ¬½Ç¶È³öÍ¼
 
 fep=[];                                %¶¨ÒåÁ©¸ö¿Õ¾ØÕó£¬0ĞĞ0ÁĞ¿Õ¾ØÕó   ÌØÕ÷µãÁĞË÷Òı
 feq=[];                    
@@ -124,19 +122,42 @@ p0=P(:,fep);                          %p0 ÎªÌØÕ÷µã×ø±ê¾ØÕó
 q0=Q(:,feq);
 
 
-% figure;
-axe(3)=subplot(223);
-plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
-title('Ä¿±êµãÔÆ¹Ø¼üµã¾«ÌáÈ¡')
-view(3)
-% figure;
-axe(4)=subplot(224);
-plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
-title('Ä£°åµãÔÆ¹Ø¼üµã¾«ÌáÈ¡')
-view(3)
-linkaxes(axe,'xy')
+%»æÖÆ´ÖÌáÈ¡µÄÌØÕ÷µã
+displayFinalPickKeyPoint(p0,q0);
+
+
 
 %%%clear axe i data1 data2 file1 file2 I k
 %%clearvars -except P Q pn qn n1 d1 d11 n2 d2 d22 fep feq feq0
 
 %save PFH1.mat%±£´æ¹¤×÷ÇøËùÓĞ±äÁ¿
+end
+
+%% »æÖÆ´ÖÌáÈ¡µÄÌØÕ÷µã
+function []=displayFirstPickKeyPoint(p0,q0)
+    global axe;
+    figure(1);                                 %ÏÔÊ¾p0 q0ÌØÕ÷µã£¬ÌØÕ÷Îª¸Ãµã·¨ÏòÁ¿µã³É×î½ü8¸öµãµÄ·¨ÏòÁ¿¾ø¶ÔÖµÀÛ¼ÓµÄÆ½¾ùÖµĞ¡ÓÚËùÓĞÆ½¾ùÖµµÄÆ½¾ù
+    axe(2)=subplot(222);
+    plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
+    hold on
+    plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
+    title('Ä£°åµãÔÆÓëÄ¿±êµãÔÆµÄÌØÕ÷µã´ÖÌáÈ¡')
+    view(3)
+    % daspect([1 1 1]);                      %ÈıÎ¬½Ç¶È³öÍ¼
+end
+
+%% »æÖÆ×îÖÕÌáÈ¡µÄÌØÕ÷µã
+function []=displayFinalPickKeyPoint(p0,q0)
+    global axe;
+    figure(1);
+    axe(3)=subplot(223);
+    plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
+    title('Ä¿±êµãÔÆ¹Ø¼üµã¾«ÌáÈ¡')
+    view(3)
+    figure(1);
+    axe(4)=subplot(224);
+    plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
+    title('Ä£°åµãÔÆ¹Ø¼üµã¾«ÌáÈ¡')
+    view(3)
+    linkaxes(axe,'xy')
+end
