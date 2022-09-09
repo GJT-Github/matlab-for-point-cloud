@@ -1,14 +1,19 @@
 function  []= registration(P,Q,fep,feq,nv)      %
-% = () ：
+%   []= registration(P,Q,fep,feq,nv) ：配准
 %      
 %  输入参数  
-%      ：
+%    P       :模板点云
+%    Q       :场景点云
+%    fep     :模板点云特征点的索引
+%    feq     :场景点云特征点的索引
+%    nv      :PFH描述中的最近邻点索引
 %
 %
 %  输出参数
-%      ：
+%    无
 %   
-
+%  Author：GJT 
+%  E-mail：gjt0114@outlook.com
 
 
 %% 四元数法配准

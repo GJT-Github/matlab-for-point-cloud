@@ -19,7 +19,8 @@ function [vep,veq] = PFHCaculate(P,Q,p0,q0,fep,feq,pn,qn,n1,d1,n2,d2)      %
 %  veq   : 源点云PFH特征描述
 %  
 %
-%  Author：GJT
+%  Author：GJT 
+%  E-mail：gjt0114@outlook.com
 
 
 vep=zeros(64,length(fep));                     %定于64行，fep长列矩阵
@@ -145,8 +146,8 @@ title('第144个关键点的PFH特征描述子')
 % end
 %%% clear i j1 j2 a u v w zuobiao0 zuobiao1 zuobiao2 SY fashi0 fashi1 fashi2 pfh 
 %% clear vars -except vep veq P Q fep feq feq0
-<<<<<<< HEAD
+
 % save PFH2.mat
-=======
+
 %save PFH2.mat
->>>>>>> b3a720b6fd17d08b0d39855dcbb608e7d318558f
+

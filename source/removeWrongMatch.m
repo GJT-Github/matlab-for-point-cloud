@@ -2,13 +2,25 @@ function [p0,q0,feq,nv]= removeWrongMatch(P,Q,p0,q0,fep,feq,feq0,vep,veq)      %
 % [p0,q0,feq]= removeWrongMatch(P,Q,p0,q0,fep,feq,feq0,vep,veq) ：剔除误匹配点
 %      
 %  输入参数  
-%      ：
-%
+%    P       ：模板点云
+%    Q       ：场景点云
+%    p0      ：模板点云的特征点集合
+%    q0      ：场景点云的特征点集合
+%    fep     ：模板点云特征点的索引
+%    feq     ：场景点云特征点的索引
+%    feq0    ：场景点云特征点的索引备份
+%    vep     ：场景点云特征点的PFH描述
+%    veq     ：场景点云特征点的PFH描述
+%  
 %
 %  输出参数
-%      ：
-%   
-
+%    p0      ：剔除误匹配后剩余正确匹配对应点,模板点云特征点
+%    q0      ：剔除误匹配后剩余正确匹配对应点,场景点云特征点
+%    feq     ：剔除误匹配后剩余正确匹配对应点,场景点云特征点
+%    nv      ：PFH描述中的最近邻点索引
+%
+%  Author：GJT 
+%  E-mail：gjt0114@outlook.com
 
 
 % load PFH2.mat
