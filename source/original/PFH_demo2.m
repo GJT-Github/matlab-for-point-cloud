@@ -1,33 +1,13 @@
-function [vep,veq] = PFHCaculate(P,Q,p0,q0,fep,feq,pn,qn,n1,d1,n2,d2)      %
-% [vep,veq] = PFHCaculate(p0,fep,q0,feq) ：
-%      
-%  输入参数  
-%  p0    ：目标点云
-%  q0    : 源点云
-%
-%  feq   : 源点云特征点
-%  fep   : 目标点云特征点
-%  
-%  n1   ：目标点云 400个 邻域点
-%  n2   ：源点云 400个 邻域点
-%
-%  d1   ：目标点云 400个邻域点 距离 从小到大排序
-%  d2   ：源点云 400个邻域点点 距离 从小到大排序
-%
-%  输出参数
-%  vep   : 目标点云PFH描述描述
-%  veq   : 源点云PFH特征描述
-%  
-%
-%  Author：GJT
-
-
+clc
+close all
+clear
+%% 计算PFH特征描述
+load PFH1.mat                                  %加载PFH_demo.m工作区变量，继续计算
 vep=zeros(64,length(fep));                     %定于64行，fep长列矩阵
 veq=zeros(64,length(feq));
 
-
-% p0=P(:,fep);                                  %从P中找出特征点集
-% q0=Q(:,feq);
+p0=P(:,fep);                                  %从P中找出特征点集
+q0=Q(:,feq);
 
 pn0=pn(:,fep);                                %从pn中找出特征点法向量集
 qn0=qn(:,feq);
@@ -41,8 +21,6 @@ n22=n2(:,feq);
 d22=d2(:,feq);
 
 id2=d22<0.003;
-
-%% 计算 目标点云 的PFH特征描述
 
 % tic                                        %%%计时开始
 %遍历每个特征点提出 r邻域内的特征点
@@ -75,10 +53,10 @@ for i=1:length(fep)
 %             v = v./(power(sum(v.^2),1/2));
             w = cross(u,v);                    %返回u叉乘v建立第w轴
             
-            SY = [dot(v,fashi2);...            %特征描述参数计算  dot(A,B)返回为A点乘B 即α = ν· n_t    (内积/数量积)
+            SY = [dot(v,fashi2);...            %特征描述参数计算  dot(A,B)返回为A点乘B 即 α = ν· n_t     (内积/数量积)
                                                %   … 为 续行符
                   dot(u , (zuobiao2 - zuobiao0) ./ norm(zuobiao2 - zuobiao0) );...   %特征描述参数计算返回 Φ = u · （（p_t - p_s）/d）
-                  cos( atan( dot(w,fashi2) ./ dot(u,fashi2) ) )];                    %特征描述参数计算返回  cosθ = cos( arctan(w · n_t , u · n_t) )
+                  cos( atan( dot(w,fashi2) ./ dot(u,fashi2) ) )];                    %特征描述参数计算返回 cosθ = cos( arctan(w · n_t , u · n_t) )
                   %atan( dot(w,fashi2) ./ dot(u,fashi2) ) ];
 
             a = double( SY > -0.5 ) + double( SY > 0 ) + double( SY > 0.5 );    %%%三个点划分四个区间，实现每个特征区间的四细分
@@ -92,11 +70,9 @@ for i=1:length(fep)
     vep(:,i) = pfh;
 end
 % t=toc                                      %计时结束
-
-%% 计算 源点云 的PFH特征描述
-
 for i=1:length(feq)
-
+%     pp=p0(:,i);                            %特征点坐标
+%     pn00=pn0(:,i);                         %特征点法向量
     pr0=n22(id2(:,i),i);                     %特征点r邻域索引向量
     pn1=qn(:,pr0);                           %特征点r邻域法向量集
     pr=Q(:,pr0);                             %特征点r邻域点集
@@ -125,28 +101,12 @@ for i=1:length(feq)
     veq(:,i)=pfh;
 end
 
-
-
-%% 绘制目标点云的第144个特征描述子
-
-figure;
-axe(1)=subplot(231);
-bar(vep(:,144));                      %bar和bar3分别用来绘制二维和三维竖直方图，绘制vep中第144列描述子
-axis([0 64 0 1200])                   %axis([xmin xmax ymin ymax])设置当前坐标轴 x轴和y轴的范围
-
-title('第144个关键点的PFH特征描述子')
-
-
 % for i=1:length(vep)
 % %     subplot(1,length(vep)/10-0.4,i)
 %     plot(1:64,vep(:,i))
 % %     hold on
 %     pause(0.02)
 % end
-%%% clear i j1 j2 a u v w zuobiao0 zuobiao1 zuobiao2 SY fashi0 fashi1 fashi2 pfh 
-%% clear vars -except vep veq P Q fep feq feq0
-<<<<<<< HEAD
-% save PFH2.mat
-=======
-%save PFH2.mat
->>>>>>> b3a720b6fd17d08b0d39855dcbb608e7d318558f
+%%%clear i j1 j2 a u v w zuobiao0 zuobiao1 zuobiao2 SY fashi0 fashi1 fashi2 pfh 
+%%clearvars -except vep veq P Q fep feq feq0
+save PFH2.mat

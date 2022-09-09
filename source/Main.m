@@ -41,11 +41,14 @@ qn = lsqnormest(Q, k);
 %% demo_3
 %%误匹配剔除
 [p0,q0,feq,nv]=removeWrongMatch(P,Q,p0,q0,fep,feq,feq0,vep,veq);
+<<<<<<< HEAD
 save main.mat
 
 %% 均方根评价
 load main.mat
 RMSE(p0,q0)
+=======
+>>>>>>> b3a720b6fd17d08b0d39855dcbb608e7d318558f
 
 %%特征匹配/配准
 registration(P,Q,fep,feq,nv);
