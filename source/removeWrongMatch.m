@@ -10,11 +10,9 @@ function [p0,q0,feq,nv]= removeWrongMatch(P,Q,p0,q0,fep,feq,feq0,vep,veq)      %
 %   
 
 
-<<<<<<< HEAD
-% load PFH2.mat
-=======
 
->>>>>>> b3a720b6fd17d08b0d39855dcbb608e7d318558f
+% load PFH2.mat
+
 
 %根据直方图 建立特征点匹配关系 并建 立刚性不变约束
 [nv,d]=knnsearch(vep',veq');           %vep',veq'取对应矩阵共轭转置，knnsearch(X, Y) 在向量集合X中找到分别与向量集合Y 每个行向量 最近的 邻居索引nv，距离d
