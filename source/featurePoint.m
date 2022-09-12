@@ -1,25 +1,27 @@
 function [p0,q0,fep,feq,feq0,n1,d1,n2,d2]= featurePoint(P,Q,pn,qn,k)      %特征点提取
-% b = featurePoint(P,Q,k) ：提取特征点
+% b = featurePoint(P,Q,pn,qn,k) ：提取特征点
 %
 %  输入参数                         
-% P ：输入目标点云
-% Q ：输入源点云
+%     P ：输入目标点云
+%     Q ：输入源点云
+%     pn ：目标点云法向量
+%     qn ：源点云法向量
 %
 %  输出参数
-% p0 ：特征点 
-% q0 ：特征点
-%
-% fep  ：目标点云特征点索引
-% feq  : 源点云特征点索引
-%
-% pn   : 目标点云法向量
-% qn   ：源点云法向量
-%
-% n1   ：目标点云 400个 邻域点
-% n2   ：源点云 400个 邻域点
-%   
-% d1   ：目标点云 400个邻域点 距离 从小到大排序
-% d2   ：源点云 400个邻域点点 距离 从小到大排序
+%     p0 ：目标点云特征点 
+%     q0 ：源点云特征点
+%    
+%     fep  ：目标点云特征点索引
+%     feq  : 源点云特征点索引
+%    
+%     pn   : 目标点云法向量
+%     qn   ：源点云法向量
+%    
+%     n1   ：目标点云 400个 邻域点
+%     n2   ：源点云 400个 邻域点
+%       
+%     d1   ：目标点云 400个邻域点 距离 从小到大排序
+%     d2   ：源点云 400个邻域点点 距离 从小到大排序
 %
 %  Author：GJT 
 %  E-mail：gjt0114@outlook.com
@@ -81,7 +83,9 @@ q0=Q(:,qtt);
 
 
 %绘制粗提取的特征点
-displayFirstPickKeyPoint(p0,q0);
+% displayFirstPickKeyPoint(p0,q0);
+displayer = displayFunction;
+displayer.displayFirstPickKeyPoint(p0,q0);
 
 
 fep=[];                                %定义俩个空矩阵，0行0列空矩阵   特征点列索引
@@ -123,8 +127,8 @@ q0=Q(:,feq);
 
 
 %绘制粗提取的特征点
-displayFinalPickKeyPoint(p0,q0);
-
+% displayFinalPickKeyPoint(p0,q0);
+displayer.displayFinalPickKeyPoint(p0,q0);
 
 
 %%%clear axe i data1 data2 file1 file2 I k
@@ -133,31 +137,31 @@ displayFinalPickKeyPoint(p0,q0);
 %save PFH1.mat%保存工作区所有变量
 end
 
-%% 绘制粗提取的特征点
-function []=displayFirstPickKeyPoint(p0,q0)
-    global axe;
-    figure(1);                                 %显示p0 q0特征点，特征为该点法向量点成最近8个点的法向量绝对值累加的平均值小于所有平均值的平均
-    axe(2)=subplot(222);
-    plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
-    hold on
-    plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
-    title('模板点云与目标点云的特征点粗提取')
-    view(3)
-    % daspect([1 1 1]);                      %三维角度出图
-end
+% %% 绘制粗提取的特征点
+% function []=displayFirstPickKeyPoint(p0,q0)
+%     global axe;
+%     figure(1);                                 %显示p0 q0特征点，特征为该点法向量点成最近8个点的法向量绝对值累加的平均值小于所有平均值的平均
+%     axe(2)=subplot(222);
+%     plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
+%     hold on
+%     plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
+%     title('模板点云与目标点云的特征点粗提取')
+%     view(3)
+%     % daspect([1 1 1]);                      %三维角度出图
+% end
 
-%% 绘制最终提取的特征点
-function []=displayFinalPickKeyPoint(p0,q0)
-    global axe;
-    figure(1);
-    axe(3)=subplot(223);
-    plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
-    title('目标点云关键点精提取')
-    view(3)
-    figure(1);
-    axe(4)=subplot(224);
-    plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
-    title('模板点云关键点精提取')
-    view(3)
-    linkaxes(axe,'xy')
-end
+% %% 绘制最终提取的特征点
+% function []=displayFinalPickKeyPoint(p0,q0)
+%     global axe;
+%     figure(1);
+%     axe(3)=subplot(223);
+%     plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
+%     title('目标点云关键点精提取')
+%     view(3)
+%     figure(1);
+%     axe(4)=subplot(224);
+%     plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
+%     title('模板点云关键点精提取')
+%     view(3)
+%     linkaxes(axe,'xy')
+% end

@@ -8,3 +8,5 @@ function  = ()      %
 %  Êä³ö²ÎÊý
 %      £º
 %   
+%  Author£ºGJT 
+%  E-mail£ºgjt0114@outlook.com
