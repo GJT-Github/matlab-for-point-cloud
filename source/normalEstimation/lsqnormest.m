@@ -6,7 +6,7 @@ function n = lsqnormest(p, k)      % 定义子函数，对应调用变量P=p,k=k
 m = size(p,2);                     % 返回p矩阵的列数
 n = zeros(3,m);                    % 定义3行m列的0阵  
 
-% 求取最近零点，利用kunsearch函数
+% 求取最近零点，利用knnsearch函数
 neighbors = transpose( knnsearch( transpose(p) , transpose(p) , 'k', k+1 ) ); % transpose转置矩阵transpose（p）为n*3矩阵，理解为n个行向量（点）
                                                                               % Idx = knnsearch(X,Y,Name,Value) 返回一个列向量列表（行号），X中点与Y中每个点（行数递增）最近的点的行数，还可指定要搜索的最近领域的数量Value及搜索中使用的距离度量Name（即使用哪种距离）。
                                                                               % 数量取k+1原因是X,Y相同，其中一个点为该点本身，距离为0，kunsearch返回值为一个n行k+1列矩阵，（i，j）代表X中距离Y中第i个点第j近点的行号，再进行转置，结果为k+1*n矩阵，值为p矩阵的列数

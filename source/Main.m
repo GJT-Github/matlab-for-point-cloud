@@ -1,120 +1,141 @@
-
+% 点云处理
+%
+% Author ：GJT
+% E-mail ：gjt0114@outlook.com
 
 function main   %https://blog.csdn.net/weixin_37610397/article/details/80441523
 
-clc
-clear
-close all
+	clc
+	clear
+	close all
 
-%global axe;
+	%global axe;
 
-addpath(genpath('../source/'))   %addpath 是添加SGDLibrary-master目录   genpath 是读取SGDLibrary-master目录所有子目录
-%% 读取文件
+	addpath(genpath('../source/'))   %addpath 是添加SGDLibrary-master目录   genpath 是读取SGDLibrary-master目录所有子目录
+	%% 读取文件
 
-file1='../Datas/bun045.asc';
-file2='../Datas/bun000.asc';
+	file1='../Datas/bun045.asc';
+	file2='../Datas/bun000.asc';
 
-% file1='../Datas/rabbit.pcd';
-% file2='../Datas/rabbit.pcd';
+	% file1='../Datas/rabbit.pcd';
+	% file2='../Datas/rabbit.pcd';
 
-% file1='../Datas/rabbit.ply';
-% file2='../Datas/Scene3.ply';
+	% file1='../Datas/rabbit.ply';
+	% file2='../Datas/Scene3.ply';
 
-tic         %计时开始
+	tic         %计时开始 for Debug
 
-[P,Q]= readPointCloudDatas(file1,file2);
+	[P,Q]= readPointCloudDatas(file1,file2);
 
-toc         %计时结束，自动打印运行的时间
-% t=toc   
+	toc         %计时结束，自动打印运行的时间 for Debug
+	% t=toc     % for Debug
 
-%绘制读到的点云
-% displayInitPointCloud(P,Q);
-displayer = displayFunction;
-displayer.displayInitPointCloud(P,Q);
-
-
-%% 通过8邻域PCA建立 法向量估计 [pn、qn]
-% PCA法向量估计：某点邻域协方差矩阵最小特征值对应特征向量即该点法向量
-k=8;                                    %邻域选定：8邻域
-
-pn = lsqnormest(P, k);                  %调用求法向量子函数lsqnormest求P阵所有法向量
-qn = lsqnormest(Q, k);
-
-%绘制目标点云的法向量
-displayer.displayNormalOnSourcePointCloud(P,pn);
+	%绘制读到的点云
+	displayer = displayFunction;
+	displayer.displayInitPointCloud(P,Q);
 
 
-%% 特征点提取   demo_1
-[p0,q0,fep,feq,feq0,n1,d1,n2,d2] = featurePoint(P,Q,pn,qn,k);
+	%% 通过8邻域PCA建立 法向量估计 [pn、qn]
+	% PCA法向量估计：某点邻域协方差矩阵最小特征值对应特征向量即该点法向量
+	k = 8;                                    %邻域选定：8邻域
+	[pn,qn] = normalCaculate(P,Q,k);
 
-%% PFH特征计算/描述  demo_2
-[vep,veq] = PFHCaculate(P,Q,p0,q0,fep,feq,pn,qn,n1,d1,n2,d2);
-save main.mat
-%% demo_3
-%% 误匹配剔除
-% load main.mat
-[p0,q0,feq,nv] = removeWrongMatch(P,Q,p0,q0,fep,feq,feq0,vep,veq);
+	%绘制目标点云的法向量
+	displayer.displayNormalOnSourcePointCloud(P,pn);
 
-%save main.mat
-
-%% 均方根评价
-%load main.mat
-RMSE(p0,q0)
+	save ../Datas/MatFiles/Normal.mat       % for Debug
 
 
-%% 特征匹配/配准
-coarseRegistration(P,Q,fep,feq,nv);
+	%% 特征点提取   demo_1
+	% load ../Datas/MatFiles/Normal.mat     % for Debug
+	[p0,q0,fep,feq,feq0,n1,d1,n2,d2] = featurePoint(P,Q,pn,qn,k);
+
+	save ../Datas/MatFiles/FP.mat           % for Debug
 
 
-%% 精配准
-fineRegistration();
+	%% 特征计算/描述  demo_2
+	% 1、PFH
+	% load ../Datas/MatFiles/FP.mat         % for Debug
+
+	% [vep,veq] = PFHCaculate(P,Q,p0,q0,fep,feq,pn,qn,n1,d1,n2,d2);
+
+	% 绘制某点PFH描述
+	% displayer.displayPFHOfKeyPoint(vep);
+
+	% save ../Datas/MatFiles/PFHC.mat         % for Debug
+	
+	
+	% 2、FPFH
+    close all
+	clear
+	clc
+	load ../Datas/MatFiles/FP.mat         % for Debug
+	r_P = 0.005;
+	r_Q = 0.005;
+
+	%近邻数据转换，400 * n 转为 1*400*n 元胞数组
+	% for i = 1:size(n1,1)
+	   % idx_P{i} = n1(:,i)';
+	   % dis_P{i} = d1(:,i)';
+	   % idx_Q{i} = n2(:,i)';
+	   % dis_Q{i} = d2(:,i)';
+	% end
+tic
+	% [vep,veq] = FPFHCaculate(P,Q,pn,qn,fep,feq,r_P,r_Q,idx_P,dis_P,idx_Q,dis_Q);
+	[vep,veq] = FPFHCaculate(P,Q,pn,qn,fep,feq,r_P,r_Q);
+toc
+	%绘制某点FPFH描述
+    displayer = displayFunction;
+	displayer.displayFPFHOfKeyPoint(vep);
+
+	save ../Datas/MatFiles/FPFHC.mat         % for Debug
+
+
+	%% demo_3
+	%% 误匹配剔除
+	% load ../Datas/MatFiles/PFHC.mat       % for Debug
+	% load ../Datas/MatFiles/FPFHC.mat       % for Debug
+	[p0,q0,feq,nv] = removeWrongMatch(P,Q,p0,q0,fep,feq,feq0,vep,veq);
+
+	save ../Datas/MatFiles/RWM.mat          % for Debug
+
+
+	%%  均方根评价
+	%load ../Datas/MatFiles/RWM.mat         % for Debug
+	RMSE(p0,q0)
+
+
+	%% 特征匹配/配准
+	% close all                             % for Debug
+	% clear                                 % for Debug
+	% clc                                   % for Debug
+	% load ../Datas/MatFiles/RWM.mat        % for Debug
+	[Q1,R_Coarse,T_Coarse] = coarseRegistration(P,Q,fep,feq,nv);
+
+	save ../Datas/MatFiles/CR.mat           % for Debug
+
+
+	%% 精配准
+	close all
+	clear
+	clc
+	load ../Datas/MatFiles/CR.mat           % for Debug
+	[R_Final,T_Final] = fineRegistration(P,Q1);           % Q1 --transform--> P
+	% [R_Final,T_Final] = icp(Q1',P');                    % Q1 --transform--> P
+	% [R_Final,T_Final] = icp(Q',P');                     % Q1 --transform--> P
+    
+    save ../Datas/MatFiles/FR.mat           % for Debug
+
+
+	%% 最终的旋转平移矩阵
+    load ../Datas/MatFiles/FR.mat           % for Debug
+	R = R_Final * R_Coarse;
+	T = R_Final * T_Coarse + T_Final;
+	H = [R,T;0 0 0 1];                       % P = H * Q  -->  P = R * Q + T
+
+	displayer.displayFinalQ2P(P,R * Q + T * ones(1,size( Q , 2 )));
 
 
 end
 
 
-
-
-
-
-
-
-%% 绘图封装
-%读点云绘制
-% function [] = displayInitPointCloud(P,Q)
-%     global axe;
-%     global posionFigureX;
-%     global posionFigureY;
-%     global posionFigureZ;
-%     global posionFigureN;
-%     posionFigureX = 10;
-%     posionFigureY = 350;
-%     posionFigureZ = 500;
-% 	posionFigureN = 400;
-
-% 	figure(1);                               %画读到的点云图
-% 	% set(gcf,'position',[10 350 500 400]);
-% 	set(gcf,'position',[posionFigureX,posionFigureY,posionFigureZ,posionFigureN]);
-% 	axe(1)=subplot(221);
-% 	plot3(P(1,:),P(2,:),P(3,:),'r.');        %plot绘图函数，分别取P中第1.2.3行所有点作为坐标轴，r表示颜色
-% 	hold on
-% 	plot3(Q(1,:),Q(2,:),Q(3,:),'b.');
-% 	title('模板点云与场景点云初始位置')
-% 	view(3)
-% end
-
-% %法向量绘制
-% function [] = displayNormalOnSourcePointCloud(P,normal)
-%     global axe;
-%     global posionFigureX;
-%     global posionFigureY;
-%     global posionFigureZ;
-%     global posionFigureN;
-% 	figure(2);
-%     set(gcf,'position',[posionFigureX + 510,posionFigureY,posionFigureZ,posionFigureN]);
-% 	plot3(P(1,:),P(2,:),P(3,:),'r.');        %plot绘图函数，分别取P中第1.2.3行所有点作为坐标轴，r表示颜色
-% 	hold on
-% 	quiver3( P(1,:) , P(2,:) , P(3,:)  ,  normal(1,:) , normal(2,:) , normal(3,:) ,'g');
-% 	xlabel('x');ylabel('y');zlabel('z');
-% 	title('源点云法向量显示');
-% end

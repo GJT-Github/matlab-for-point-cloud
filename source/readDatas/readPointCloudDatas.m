@@ -6,8 +6,8 @@ function  [data_source,data_target]= readPointCloudDatas(P_file,Q_file)      %
 %    Q_file  : 场景点云文件路径
 %
 %  输出参数
-%    data_source     : 目标点云XYZ点数据
-%    data_target     : 场景点云XYZ点数据
+%    P     : 目标点云XYZ点数据, 3*n 的数据矩阵
+%    Q     : 场景点云XYZ点数据，3*n 的数据矩阵
 %   
 %
 %  Author：GJT 

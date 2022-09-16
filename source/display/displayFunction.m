@@ -5,7 +5,8 @@ function  displayer = displayFunction      %绘图封装
 %  https://blog.csdn.net/weixin_39032619/article/details/109294078
 %      
 %  输入参数  
-%      ：
+%    P     : 目标点云XYZ点数据, 3*n 的数据矩阵
+%    Q     : 场景点云XYZ点数据，3*n 的数据矩阵
 %
 %
 %  输出参数
@@ -14,20 +15,32 @@ function  displayer = displayFunction      %绘图封装
 %  Author：GJT 
 %  E-mail：gjt0114@outlook.com
 
+%% 点云读取相关显示
 displayer.displayInitPointCloud = @displayInitPointCloud;                         %读点云绘制
 displayer.displayNormalOnSourcePointCloud = @displayNormalOnSourcePointCloud;     %法向量绘制
 
+%% 特征点提取相关显示
 displayer.displayFirstPickKeyPoint = @displayFirstPickKeyPoint;                   %绘制粗提取的特征点
 displayer.displayFinalPickKeyPoint = @displayFinalPickKeyPoint;                   %绘制最终提取的特征点
 
-displayer.displayPFHOfKeyPoint = @displayPFHOfKeyPoint;                           % 绘制粗提取的特征点
+%% 特征点特征描述相关显示
+displayer.displayPFHOfKeyPoint = @displayPFHOfKeyPoint;                           % 绘制特征点的PFH描述
+displayer.displayFPFHOfKeyPoint = @displayFPFHOfKeyPoint;                         % 绘制特征点的FPFH描述
 
+%% 特征匹配相关显示
 displayer.displayPointCloudAndLine = @displayPointCloudAndLine;                   % 绘制匹配后的对应点
 displayer.displayDeleteDisdencePointCloudAndLine = @displayDeleteDisdencePointCloudAndLine;  % 绘制剔除距离阈值后的对应点
 displayer.displayRigidInvariantConstraintsPointCloudAndLine = @displayRigidInvariantConstraintsPointCloudAndLine;   % 绘制刚性不变约束剔除错误匹配后的对应点                        % 绘制粗提取的特征点
 displayer.displayRANSACPointCloudAndLine = @displayRANSACPointCloudAndLine;       % 绘制RANSAC剔除错误匹配后的对应点
 
+%% 粗配准相关显示
 displayer.displayRigistration = @displayRigistration;                             % 绘制粗匹配结果
+
+%% 精配准相关显示
+displayer.displayProcessOfICP = @displayProcessOfICP;                             % 绘制ICP配准过程
+
+%% 最终得到的旋转平移变换矩阵一次变换相关显示
+displayer.displayFinalQ2P = @displayFinalQ2P;                                     % 绘制最终得到的旋转平移矩阵一次变换结果
 
 
 end
@@ -66,7 +79,7 @@ function [] = displayNormalOnSourcePointCloud(P,normal)
     global posionFigureZ;
     global posionFigureN;
 	figure(2);
-    set(gcf,'position',[posionFigureX + 510,posionFigureY,posionFigureZ,posionFigureN]);
+    set(gcf,'position',[posionFigureX + (posionFigureZ+10)*1,posionFigureY,posionFigureZ,posionFigureN]);
 	plot3(P(1,:),P(2,:),P(3,:),'r.');        %plot绘图函数，分别取P中第1.2.3行所有点作为坐标轴，r表示颜色
 	hold on
 	quiver3( P(1,:) , P(2,:) , P(3,:)  ,  normal(1,:) , normal(2,:) , normal(3,:) ,'g');
@@ -113,7 +126,7 @@ end
 
 
 
-%绘制粗提取的特征点
+%绘制特征点的PFH描述
 function [] = displayPFHOfKeyPoint(vep)
     global axe;
     global posionFigureX;
@@ -121,11 +134,27 @@ function [] = displayPFHOfKeyPoint(vep)
     global posionFigureZ;
     global posionFigureN;
     figure(3);
-    set(gcf,'position',[posionFigureX + 510*2,posionFigureY,posionFigureZ,posionFigureN]);
+    set(gcf,'position',[posionFigureX + (posionFigureZ+10)*2,posionFigureY,posionFigureZ,posionFigureN]);
     axe(1)=subplot(231);
     bar(vep(:,144));                      %bar和bar3分别用来绘制二维和三维竖直方图，绘制vep中第144列描述子
     axis([0 64 0 1200])                   %axis([xmin xmax ymin ymax])设置当前坐标轴 x轴和y轴的范围
     title('第144个关键点的PFH特征描述子')
+end
+
+
+%绘制特征点的FPFH描述
+function [] = displayFPFHOfKeyPoint(vep)
+    global axe;
+    global posionFigureX;
+    global posionFigureY;
+    global posionFigureZ;
+    global posionFigureN;
+    figure(3);
+%     set(gcf,'position',[posionFigureX + (posionFigureZ+10)*2,posionFigureY,posionFigureZ,posionFigureN]);
+    axe(1)=subplot(231);
+    bar(vep(:,144));                      %bar和bar3分别用来绘制二维和三维竖直方图，绘制vep中第144列描述子
+    axis([0 64 0 1200])                   %axis([xmin xmax ymin ymax])设置当前坐标轴 x轴和y轴的范围
+    title('第144个关键点的FPFH特征描述子')
 end
 
 %--------------------------------------------PFHCaculate_end---------------------------------------------
@@ -250,10 +279,66 @@ function []=displayRigistration(P,Q1)
     % plot3(Q(1,:),Q(2,:),Q(3,:),'g.');
     xlabel('x');ylabel('y');zlabel('z');
     title('四元数配准');
-    view(2)
+    view(3)
     linkaxes(axe(2:6),'xy')
 
 
 end
 
 %% --------------------------------------------displayRigistration_end------------------------------------------
+%% --------------------------------------------ICP--------------------------------------------------------------
+function [] = displayProcessOfICP(data_source,data_target,iteration,num_Figure)
+    %
+    % data_source  ：3 * n
+    % data_target  ：3 * n
+    %
+        if iteration == 1
+            % h = figure( 'position' , [ left + width + 10 * 1 , bottom , width , hight ] );
+            figure(num_Figure);
+        end
+        scatter3( data_source( 1 , : ) , data_source( 2 , : ) , data_source( 3 , : ) , 'b.' );
+        hold on;
+        scatter3( data_target( 1 , : ) , data_target( 2 , : ) , data_target( 3 , : ) , 'r.' );
+        hold off;
+        title( '配准过程展示' )
+        xlabel( 'x' );
+        ylabel( 'y' );
+        zlabel( 'z' );
+        grid on;
+        legend( 'source-file_1(模板)' , 'target-file_2' )
+        daspect( [1 1 1] );
+        pause( 0.1 );
+        drawnow
+
+end
+
+
+
+
+%% --------------------------------------------ICP_end----------------------------------------------------------
+%% --------------------------------------------Final_end--------------------------------------------------------
+function [] = displayFinalQ2P(data_source,data_target)
+    %
+    % data_source  ：3 * n
+    % data_target  ：3 * n
+    %
+
+        figure;
+        scatter3( data_source( 1 , : ) , data_source( 2 , : ) , data_source( 3 , : ) , 'b.' );
+        hold on;
+        scatter3( data_target( 1 , : ) , data_target( 2 , : ) , data_target( 3 , : ) , 'r.' );
+        hold off;
+        title( '最终得到的旋转平移矩阵一次变换展示' )
+        xlabel( 'x' );
+        ylabel( 'y' );
+        zlabel( 'z' );
+        grid on;
+        legend( 'source-file_1(模板)' , 'target-file_2' )
+        daspect( [1 1 1] );
+        drawnow
+
+end
+
+
+%% --------------------------------------------Final_end--------------------------------------------------------
+

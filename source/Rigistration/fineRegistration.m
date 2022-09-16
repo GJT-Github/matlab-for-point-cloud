@@ -1,36 +1,59 @@
-function []= fineRegistration()      %
-% = () ：
+function [R_Final,T_Final]= fineRegistration(data_target,data_source)      %
+% []= fineRegistration(data_target,data_source) ：ICP实现
 %      
 %  输入参数  
-%      ：
+%   data_target   ：粗配准后的目标点云 3 * n
+%   data_source   ：粗配准后的源点云   3 * n
 %
 %
 %  输出参数
-%      ：
+%   R_Final            ：粗配准后旋转矩阵   3 * 3
+%   T_Final            ：粗配准后平移矩阵   3 * 1
 %   
 %  Author：GJT 
 %  E-mail：gjt0114@outlook.com
 
 
 
-
-
-
 % *****************ICP实现*****************
+%https://blog.csdn.net/Darlingqiang/article/details/108441503
+%
 
-% 初始参数设定
-T_final   =  eye( 4 , 4 );                %旋转矩阵粗配准后旋转平移矩阵 eye:单位阵  加入粗配准后隐藏掉
-iteration =  0;                           %初始化迭代次数
-Rf        =  T_final( 1:3 , 1:3 );        %提取粗配准最终旋转矩阵       Rf初值：单位阵
-Tf        =  T_final( 1:3 ,4 );           %提取粗配准最终平移矩阵       Tf初值：零向量
+%% 参数配置
+    max_iteration    = 100;                       % 迭代最大次数
+    Tolerance        = 5.0e-30;                   % 误差
+    step_Tolerance   = 1.0e-4;                   % 迭代容差步长阈值
+
+
+    inlier_ratio     = 0.999;                     % 0.999 内点判定比例（欧式距离为判定条件）
+    B_baoHeDu        = 2.5;                       % M估计中饱和度B
   
-data_source = Rf * data_source + Tf * ones( 1 , size( data_source , 2) );        %初次更新点集（代表粗配准结果）
+    kd               = 1;                         % 对应点搜索选择,0：欧式距离寻找对应点 1：KD-tree寻找对应点
+  
+    inlier_flag      = 1;                         % 剔除外点控制，1：剔除 0：不剔除
+    show_flag        = 1;                         % 配准过程显示控制，1：显示；0：不显示
 
-data_source_old = data_source;            %中间变换存放
-t_a =0;
+    iteration        = 0;                         %初始化迭代次数
 
+    num_figure = 4;
+
+    % 初始旋转平移矩阵参数设定
+    T_final   =  eye( 4 , 4 );                %旋转矩阵粗配准后旋转平移矩阵 eye:单位阵  
+    Rf        =  T_final( 1:3 , 1:3 );        %提取粗配准最终旋转矩阵       Rf初值：单位阵
+    Tf        =  T_final( 1:3 ,4 );           %提取粗配准最终平移矩阵       Tf初值：零向量
+
+% data_source     = Rf * data_source + Tf * ones( 1 , size( data_source , 2) );      %初次更新点集（代表粗配准结果）,加入粗配准后注释掉
+
+    data_source_old = data_source;              %中间变换存放
+    t_a = 0;
+
+%迭代前显示 debug
+% displayer = displayFunction;
+% displayer.displayRigistration(data_target,data_source);
+
+
+%% 迭代优化
 % tic;
-% 迭代优化
 while(1)
     
   iteration = iteration + 1;
@@ -60,7 +83,7 @@ while(1)
     disp( [ '误差err=' , num2str( mean( dist ) ) ] );
     disp( ['迭代次数iteration=' , num2str( iteration ) ] );
     err_rec( iteration ) = mean( dist );
-    % err = min( err_rec );
+    err = min( err_rec );
 
 
     %剔除外点
@@ -82,6 +105,9 @@ while(1)
         data_mid         = data_target;  
     end
 
+%计算旋转平移矩阵前显示 debug
+% close all
+% displayer.displayRigistration(data_target,data_source);
 
 
     % 单元四元素求解 旋转矩阵R 与 平移向量T    data_source -> data_mid
@@ -100,28 +126,30 @@ while(1)
     % 更新点集
     data_source = Rf * data_source_old + Tf * ones( 1 , size( data_source_old , 2 ) );
 
-
+%应用旋转变换矩阵后显示 debug
+% close all
+% displayer.displayRigistration(data_target,data_source);
 
     
-    %% M-估计引入目标函数
+    %%———————————————————————————论文中 M-估计引入目标函数————————————————————————————————————————————————————
       
-    % k=size(data_source,2);
-    % for i = 1:k                    
-        data_q1( 1 , : ) = data_target( 1 , index ) - data_source( 1 , idx );    % 两个对应点集中的点x坐标之差
-        data_q1( 2 , : ) = data_target( 2 , index ) - data_source( 2 , idx );    % 两个对应点集中的点y坐标之差
-        data_q1( 3 , : ) = data_target( 3 , index ) - data_source( 3 , idx );    % 两个对应点集中的点z坐标之差
+    % % k=size(data_source,2);
+    % % for i = 1:k                    
+    %     data_q1( 1 , : ) = data_target( 1 , index ) - data_source( 1 , idx );    % 两个对应点集中的点x坐标之差
+    %     data_q1( 2 , : ) = data_target( 2 , index ) - data_source( 2 , idx );    % 两个对应点集中的点y坐标之差
+    %     data_q1( 3 , : ) = data_target( 3 , index ) - data_source( 3 , idx );    % 两个对应点集中的点z坐标之差
 
-        f(1,:) = F_M_estition( data_q1( 1 , : ) , B_baoHeDu );                  
-        f(2,:) = F_M_estition( data_q1( 2 , : ) , B_baoHeDu );
-        f(3,:) = F_M_estition( data_q1( 3 , : ) , B_baoHeDu );
-    % end
-    f_value_m_estition = mean( sum( f ));
-    % err_rec( iteration ) = f_value_m_estition;
-    % err = min( err_rec );
-    err = f_value_m_estition;
-    % clear f
+    %     f(1,:) = F_M_estition( data_q1( 1 , : ) , B_baoHeDu );                  
+    %     f(2,:) = F_M_estition( data_q1( 2 , : ) , B_baoHeDu );
+    %     f(3,:) = F_M_estition( data_q1( 3 , : ) , B_baoHeDu );
+    % % end
+    % f_value_m_estition = mean( sum( f ));
+    % % err_rec( iteration ) = f_value_m_estition;
+    % % err = min( err_rec );
+    % err = f_value_m_estition;
+    % % clear f
 
-    
+   %%————————————————————————————————————————————————————————————————————————————————————————————————————————— 
 
      
 
@@ -129,7 +157,8 @@ while(1)
     % 显示中间结果（配准过程）
     if show_flag == 1
         if iteration == 1
-            h = figure( 'position' , [ left + width + 10 * 1 , bottom , width , hight ] );
+            % h = figure( 'position' , [ left + width + 10 * 1 , bottom , width , hight ] );
+            figure(num_figure);
         end
         scatter3( data_source( 1 , : ) , data_source( 2 , : ) , data_source( 3 , : ) , 'b.' );
         hold on;
@@ -155,9 +184,15 @@ while(1)
         end
 
         %局部最优
-        if iteration > 1 && err_rec(iteration-1) - err_rec(iteration) < step_Tolerance
+        if iteration > 1 &&  err_rec(iteration-1) - err_rec(iteration) < step_Tolerance 
             disp( '――――――――――――――――――――――――――――' );
             disp( '情况2：前后迭代误差减少量小于阈值，局部最优，结束优化' );
+            disp('上一次迭代误差：');
+            disp(num2str(err_rec(iteration-1)));
+            disp('本次迭代误差：');
+            disp(num2str(err_rec(iteration)));
+            disp('两次次迭代误差差值：');
+            disp(num2str(err_rec(iteration-1) - err_rec(iteration)));
             break
         end
 
@@ -174,7 +209,11 @@ while(1)
       
 end
 
-figure('position' , [ left  , bottom - hight , width , hight ]);
+R_Final = Rf;
+T_Final = Tf;
+
+% figure('position' , [ left  , bottom - hight , width , hight ]);
+figure(num_figure + 1);
 plot(time_record)
 hold on
 line([0,iteration],[mean(time_record),mean(time_record)],'color','r')
@@ -207,7 +246,8 @@ end
 err_rec( iteration + 1 ) = mean( dist );
 
 %迭代优化过程中误差变化曲线
-figure( 'Name' , '迭代误差曲线' , 'NumberTitle' , 'off' , 'position' , [ left + width * 2 + 10 * 2 , bottom , width , hight ] );
+% figure( 'Name' , '迭代误差曲线' , 'NumberTitle' , 'off' , 'position' , [ left + width * 2 + 10 * 2 , bottom , width , hight ] );
+figure(num_figure + 2 );
 plot(0:iteration,err_rec);
 grid on
 title( '迭代过程误差变化曲线' )
@@ -216,7 +256,8 @@ ylabel( '迭代误差' );
 grid on;
 
 % 最后点云匹配的结果
-figure( 'Name' ,  '精配准结果' , 'NumberTitle' , 'off' , 'position' , [ left + width * 1 + 10 * 1 , bottom - hight , width , hight ] );
+% figure( 'Name' ,  '精配准结果' , 'NumberTitle' , 'off' , 'position' , [ left + width * 1 + 10 * 1 , bottom - hight , width , hight ] );
+figure(num_figure + 3 );
 scatter3( data_source( 1 , : ) , data_source( 2 , : ) , data_source( 3 , : ) , 'b.' );
 hold on;
 scatter3( data_target( 1 , : ) , data_target( 2 , : ) , data_target( 3 , : ) , 'r.' );
@@ -226,9 +267,9 @@ title( '精配准结果' )
 xlabel( 'x' ); ylabel( 'y' ); zlabel( 'z' );
 grid on;
 
-disp( '旋转矩阵的真值：' );
-disp( T0 );  %旋转矩阵真值
-disp( '计算出的旋转矩阵：' );
+disp( '旋转平移矩阵的真值：' );
+% disp( T0 );  %旋转矩阵真值
+disp( '计算出的旋转平移矩阵：' );
 T_final = [ Rf , Tf ];
 T_final = [ T_final ; 0 , 0 , 0 , 1 ];
 disp( T_final );
