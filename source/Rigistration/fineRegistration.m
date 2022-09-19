@@ -22,7 +22,7 @@ function [R_Final,T_Final]= fineRegistration(data_target,data_source)      %
 %% 参数配置
     max_iteration    = 100;                       % 迭代最大次数
     Tolerance        = 5.0e-30;                   % 误差
-    step_Tolerance   = 1.0e-4;                   % 迭代容差步长阈值
+    step_Tolerance   = 1.0e-14;                   % 迭代容差步长阈值
 
 
     inlier_ratio     = 0.999;                     % 0.999 内点判定比例（欧式距离为判定条件）
@@ -184,15 +184,15 @@ while(1)
         end
 
         %局部最优
-        if iteration > 1 &&  err_rec(iteration-1) - err_rec(iteration) < step_Tolerance 
+        if iteration > 1 &&  abs(err_rec(iteration-1) - err_rec(iteration))< step_Tolerance 
             disp( '――――――――――――――――――――――――――――' );
             disp( '情况2：前后迭代误差减少量小于阈值，局部最优，结束优化' );
             disp('上一次迭代误差：');
             disp(num2str(err_rec(iteration-1)));
             disp('本次迭代误差：');
             disp(num2str(err_rec(iteration)));
-            disp('两次次迭代误差差值：');
-            disp(num2str(err_rec(iteration-1) - err_rec(iteration)));
+            disp('两次次迭代误差差值绝对值：');
+            disp(num2str(abs(err_rec(iteration-1) - err_rec(iteration))));
             break
         end
 

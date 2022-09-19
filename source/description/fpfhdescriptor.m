@@ -6,8 +6,8 @@ function FPFH=fpfhdescriptor(P,pn,fep,r,idx_p,dis_p)
 %     pn     : 目标点云法向量  3 * n   
 %     fep    : 源点云特征点    1 * n     
 %     r      : 目标点云邻域半径，邻域搜索用    标量
-%     idx_p  : 源点云邻域索引，元胞数组          |    缺省则用KDtree 搜索r邻域点
-%     dis_p  : 源点云邻域距离，元胞数组          |
+%     idx_p  : 源点云邻域索引，元胞数组   1 * n       |    缺省则用KDtree 搜索r邻域点
+%     dis_p  : 源点云邻域距离，元胞数组   1 * n       |
 %
 %
 %  输出参数

@@ -9,26 +9,18 @@ function main   %https://blog.csdn.net/weixin_37610397/article/details/80441523
 	clear
 	close all
 
-	%global axe;
-
+	
 	addpath(genpath('../source/'))   %addpath 是添加SGDLibrary-master目录   genpath 是读取SGDLibrary-master目录所有子目录
 	%% 读取文件
 
 	file1='../Datas/bun045.asc';
 	file2='../Datas/bun000.asc';
 
-	% file1='../Datas/rabbit.pcd';
-	% file2='../Datas/rabbit.pcd';
-
-	% file1='../Datas/rabbit.ply';
-	% file2='../Datas/Scene3.ply';
-
 	tic         %计时开始 for Debug
 
 	[P,Q]= readPointCloudDatas(file1,file2);
 
 	toc         %计时结束，自动打印运行的时间 for Debug
-	% t=toc     % for Debug
 
 	%绘制读到的点云
 	displayer = displayFunction;
@@ -47,31 +39,58 @@ function main   %https://blog.csdn.net/weixin_37610397/article/details/80441523
 
 
 	%% 特征点提取   demo_1
-	% load ../Datas/MatFiles/Normal.mat     % for Debug
-	[p0,q0,fep,feq,feq0,n1,d1,n2,d2] = featurePoint(P,Q,pn,qn,k);
+    close all
+    clear all
+    clc
+	load ../Datas/MatFiles/Normal.mat     % for Debug
 
-	save ../Datas/MatFiles/FP.mat           % for Debug
+	% 1、
+	% [p0,q0,fep,feq,feq0,n1,d1,n2,d2] = featurePoint(P,Q,pn,qn,k);
+
+    % 2、ISS特征点
+	r  = 0.005;                            % 邻域半径
+	e1 = 0.8;                              % 中间特征值与最大特征值之比的 阈值
+	e2 = 0.4;                              % 中间特征值与最小特征值之比的 阈值
+	[p0,q0,fep,feq,feq0,n1,d1,n2,d2] = keyPointOfISS(P,Q, r, e1,e2);  
+
+
+	%绘制最终提取的特征点
+	displayer.displayFinalPickKeyPoint(p0,q0);
+
+% 	save ../Datas/MatFiles/FP.mat           % for Debug
 
 
 	%% 特征计算/描述  demo_2
 	% 1、PFH
-	% load ../Datas/MatFiles/FP.mat         % for Debug
-
-	% [vep,veq] = PFHCaculate(P,Q,p0,q0,fep,feq,pn,qn,n1,d1,n2,d2);
-
+	% clear all                              % for Debug
+	% close all                              % for Debug
+	% clc                                    % for Debug
+% 	load ../Datas/MatFiles/FP.mat            % for Debug
+tic
+	[vep,veq] = PFHCaculate(P,Q,p0,q0,fep,feq,pn,qn,n1,d1,n2,d2);
+% 	[vep] = pfhDescriptor(P,fep,pn,n1,d1) ;
+toc
 	% 绘制某点PFH描述
-	% displayer.displayPFHOfKeyPoint(vep);
+    global posionFigureX;         % for bedug
+    global posionFigureY;         % for bedug
+    global posionFigureZ;         % for bedug
+    global posionFigureN;         % for bedug
+    posionFigureX = 10;           % for bedug
+    posionFigureY = 350;          % for bedug
+    posionFigureZ = 500;          % for bedug
+	posionFigureN = 400;          % for bedug
+	displayer.displayPFHOfKeyPoint(vep);
 
 	% save ../Datas/MatFiles/PFHC.mat         % for Debug
 	
 	
 	% 2、FPFH
-    close all
-	clear
-	clc
-	load ../Datas/MatFiles/FP.mat         % for Debug
-	r_P = 0.005;
-	r_Q = 0.005;
+	% clear all                               % for Debug
+	% close all                               % for Debug
+	% clc                                     % for Debug
+	% load ../Datas/MatFiles/FP.mat           % for Debug
+	% r_P = 0.005;
+	% r_Q = 0.005;
 
 	%近邻数据转换，400 * n 转为 1*400*n 元胞数组
 	% for i = 1:size(n1,1)
@@ -80,24 +99,27 @@ function main   %https://blog.csdn.net/weixin_37610397/article/details/80441523
 	   % idx_Q{i} = n2(:,i)';
 	   % dis_Q{i} = d2(:,i)';
 	% end
-tic
+% tic
 	% [vep,veq] = FPFHCaculate(P,Q,pn,qn,fep,feq,r_P,r_Q,idx_P,dis_P,idx_Q,dis_Q);
-	[vep,veq] = FPFHCaculate(P,Q,pn,qn,fep,feq,r_P,r_Q);
-toc
+	% [vep,veq] = FPFHCaculate(P,Q,pn,qn,fep,feq,r_P,r_Q);
+% toc
 	%绘制某点FPFH描述
-    displayer = displayFunction;
-	displayer.displayFPFHOfKeyPoint(vep);
+    % displayer = displayFunction;             % for Debug
+	% displayer.displayFPFHOfKeyPoint(vep);
 
-	save ../Datas/MatFiles/FPFHC.mat         % for Debug
+	% save ../Datas/MatFiles/FPFHC.mat         % for Debug
 
 
 	%% demo_3
 	%% 误匹配剔除
+	% close all                             % for Debug
+	% clear all                             % for Debug
+	% clc                                   % for Debug
 	% load ../Datas/MatFiles/PFHC.mat       % for Debug
-	% load ../Datas/MatFiles/FPFHC.mat       % for Debug
+	% load ../Datas/MatFiles/FPFHC.mat      % for Debug
 	[p0,q0,feq,nv] = removeWrongMatch(P,Q,p0,q0,fep,feq,feq0,vep,veq);
 
-	save ../Datas/MatFiles/RWM.mat          % for Debug
+% 	save ../Datas/MatFiles/RWM.mat          % for Debug
 
 
 	%%  均方根评价
@@ -107,28 +129,28 @@ toc
 
 	%% 特征匹配/配准
 	% close all                             % for Debug
-	% clear                                 % for Debug
+	% clear all                             % for Debug
 	% clc                                   % for Debug
 	% load ../Datas/MatFiles/RWM.mat        % for Debug
 	[Q1,R_Coarse,T_Coarse] = coarseRegistration(P,Q,fep,feq,nv);
 
-	save ../Datas/MatFiles/CR.mat           % for Debug
+% 	save ../Datas/MatFiles/CR.mat           % for Debug
 
 
 	%% 精配准
-	close all
-	clear
-	clc
-	load ../Datas/MatFiles/CR.mat           % for Debug
-	[R_Final,T_Final] = fineRegistration(P,Q1);           % Q1 --transform--> P
+	% close all                             % for Debug
+	% clear all                             % for Debug
+	% clc                                   % for Debug
+	% load ../Datas/MatFiles/CR.mat         % for Debug
+	[R_Final,T_Final] = fineRegistration(P,Q);           % Q1 --transform--> P
 	% [R_Final,T_Final] = icp(Q1',P');                    % Q1 --transform--> P
 	% [R_Final,T_Final] = icp(Q',P');                     % Q1 --transform--> P
     
-    save ../Datas/MatFiles/FR.mat           % for Debug
+    % save ../Datas/MatFiles/FR.mat          % for Debug
 
 
 	%% 最终的旋转平移矩阵
-    load ../Datas/MatFiles/FR.mat           % for Debug
+    load ../Datas/MatFiles/FR.mat            % for Debug
 	R = R_Final * R_Coarse;
 	T = R_Final * T_Coarse + T_Final;
 	H = [R,T;0 0 0 1];                       % P = H * Q  -->  P = R * Q + T

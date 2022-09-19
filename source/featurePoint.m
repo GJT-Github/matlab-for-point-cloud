@@ -83,7 +83,6 @@ q0=Q(:,qtt);
 
 
 %绘制粗提取的特征点
-% displayFirstPickKeyPoint(p0,q0);
 displayer = displayFunction;
 displayer.displayFirstPickKeyPoint(p0,q0);
 
@@ -126,8 +125,7 @@ p0=P(:,fep);                          %p0 为特征点坐标矩阵
 q0=Q(:,feq);
 
 
-%绘制粗提取的特征点
-% displayFinalPickKeyPoint(p0,q0);
+%绘制最终提取的特征点
 displayer.displayFinalPickKeyPoint(p0,q0);
 
 
@@ -136,32 +134,3 @@ displayer.displayFinalPickKeyPoint(p0,q0);
 
 %save PFH1.mat%保存工作区所有变量
 end
-
-% %% 绘制粗提取的特征点
-% function []=displayFirstPickKeyPoint(p0,q0)
-%     global axe;
-%     figure(1);                                 %显示p0 q0特征点，特征为该点法向量点成最近8个点的法向量绝对值累加的平均值小于所有平均值的平均
-%     axe(2)=subplot(222);
-%     plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
-%     hold on
-%     plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
-%     title('模板点云与目标点云的特征点粗提取')
-%     view(3)
-%     % daspect([1 1 1]);                      %三维角度出图
-% end
-
-% %% 绘制最终提取的特征点
-% function []=displayFinalPickKeyPoint(p0,q0)
-%     global axe;
-%     figure(1);
-%     axe(3)=subplot(223);
-%     plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
-%     title('目标点云关键点精提取')
-%     view(3)
-%     figure(1);
-%     axe(4)=subplot(224);
-%     plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
-%     title('模板点云关键点精提取')
-%     view(3)
-%     linkaxes(axe,'xy')
-% end

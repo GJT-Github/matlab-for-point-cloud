@@ -10,10 +10,10 @@ function [P_FPFH,Q_FPFH] = FPFHCaculate(P,Q,pn,qn,fep,feq,r_P,r_Q,idx_P,dis_P,id
 %     feq    : 目标点云特征点 1 * n
 %     r_P    : 目标点云邻域半径，邻域搜索用      
 %     r_Q    : 源点云邻域半径，邻域搜索用
-%     idx_P  : 目标点云邻域索引        |    
-%     dis_P  : 目标点云邻域距离        |
-%     idx_Q  : 源点云邻域索引          |    缺省则用KDtree 搜索r邻域点
-%     dis_Q  : 源点云邻域距离          |
+%     idx_P  : 目标点云邻域索引    1 * n    |    
+%     dis_P  : 目标点云邻域距离    1 * n    |
+%     idx_Q  : 源点云邻域索引      1 * n    |    缺省则用KDtree 搜索r邻域点
+%     dis_Q  : 源点云邻域距离      1 * n    |
 %
 %
 %  输出参数
@@ -42,10 +42,10 @@ function [P_FPFH,Q_FPFH] = FPFHCaculate(P,Q,pn,qn,fep,feq,r_P,r_Q,idx_P,dis_P,id
 
     if nargin == 8
     	P_FPFH = fpfhdescriptor(P,pn,fep,r_P);
-		Q_FPFH = fpfhdescriptor(Q,qn,feq,r_Q);
+  		Q_FPFH = fpfhdescriptor(Q,qn,feq,r_Q);
     elseif nargin == 12
     	P_FPFH = fpfhdescriptor(P,pn,fep,r_P,idx_P,dis_P);
-		Q_FPFH = fpfhdescriptor(Q,qn,feq,r_Q,idx_Q,dis_Q);
+  		Q_FPFH = fpfhdescriptor(Q,qn,feq,r_Q,idx_Q,dis_Q);
     else
     	error('no bandwidth specified')
     end
