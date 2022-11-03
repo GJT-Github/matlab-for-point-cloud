@@ -1,4 +1,4 @@
-function [vep] = pfhDescriptor(P,fep,pn,n1,d1)      %
+function [vep] = pfhDescriptor(P,fep,pn,n1,d1,r_PFH)      %
 % function [vep] = pfhDescriptor(P,p0,fep,pn,n1,d1)      %
 % [vep,veq] = PFHCaculate(P,Q,p0,q0,fep,feq,pn,qn,n1,d1,n2,d2) ：PFH特征描述
 %      
@@ -21,15 +21,16 @@ function [vep] = pfhDescriptor(P,fep,pn,n1,d1)      %
 %  E-mail：gjt0114@outlook.com
 
 
-    vep=zeros(64,length(fep));                     %定于64行，fep长列矩阵
-    % pn0=pn(:,fep);                                %从pn中找出特征点法向量集
+    vep=zeros(64,length(fep));                    %定于64行，fep长列矩阵
+    % pn0=pn(:,fep);                              %从pn中找出特征点法向量集
     n11=n1(:,fep);                                %从n1中找出特征点邻域集的索引
     d11=d1(:,fep);                                %从d1中找出特征点邻域集的距离
-    id1=d11<0.003;                                %符号矩阵，给定r邻域半径
+    id1=d11< r_PFH;   %0.5 rabbit;  %0.003 bun0*;   %符号矩阵，给定r邻域半径
     %% 计算 目标点云 的PFH特征描述
 
     % tic                                        %%%计时开始
     %遍历每个特征点提出 r邻域内的特征点
+    %遍历特征点
     for i=1:length(fep)
     %    pp=p0(:,i);                              %特征点坐标
     %    pn00=pn0(:,i);                           %特征点法向量
@@ -38,7 +39,7 @@ function [vep] = pfhDescriptor(P,fep,pn,n1,d1)      %
         pr=P(:,pr0(1:end));                      %特征点r邻域内     点集
         pfh=zeros(64,1);
         
-        %遍历r邻域内特征点并 去除特征点本身
+        %遍历特征点r邻域 并 去除特征点本身
         for j1=1:length(pr0)
             zuobiao0 = pr(:,j1);                   %提取领域内某特征点（中心点）坐标
             fashi0   = pn1(:,j1);                  %提取某特征点的法矢
@@ -50,15 +51,18 @@ function [vep] = pfhDescriptor(P,fep,pn,n1,d1)      %
             fashi1(:,j1)   = [];                   %在r领域内删除特征点法矢
             
             %%%遍历去掉特征点本身后的r邻域内特征点，建立局部坐标，统计邻域PFH值
+            %遍历r邻域
             for j2 = 1:length(pr0) - 1             %删除特征点后少一列
                 zuobiao2 = zuobiao1(:,j2);         %一个r邻域点坐标
                 fashi2   = fashi1(:,j2);           %一个r邻域点的法矢S
                 
+                %建立局部坐标系
                 u = fashi0;                        %根据选定特征点的 法向量 建立局部坐标系，建立u轴
                 v = cross(u,(zuobiao2 - zuobiao0)./norm(zuobiao2 - zuobiao0));     %norm(zuobiao2-zuobiao0)求2范数，cross(A,B)返回A叉乘B，整体建立v轴
     %             v = v./(power(sum(v.^2),1/2));
                 w = cross(u,v);                    %返回u叉乘v建立第w轴
                 
+                %计算特征参数
                 SY = [dot(v,fashi2);...            %特征描述参数计算  dot(A,B)返回为A点乘B 即α = ν· n_t    (内积/数量积)
                                                    %   … 为 续行符
                       dot(u , (zuobiao2 - zuobiao0) ./ norm(zuobiao2 - zuobiao0) );...   %特征描述参数计算返回 Φ = u · （（p_t - p_s）/d）

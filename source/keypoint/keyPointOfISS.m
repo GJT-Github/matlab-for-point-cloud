@@ -31,38 +31,103 @@ function [p0,q0,fep,feq,feq0,n1,d1,n2,d2] = keyPointOfISS(P,Q, r, e1,e2,idx,dis)
   % fep = My_ISS(P, r, e1,e2,idx,dis);
   % feq = My_ISS(Q, r, e1,e2,idx,dis);
 % end
+  global r_P_k r_Q_k;
+  [n1,d1,r_P_k] = knn(P);
+  [n2,d2,r_Q_k] = knn(Q);
 
-switch nargin
-  case 5
-    fep = My_ISS(P, r, e1,e2);
-    feq = My_ISS(Q, r, e1,e2);
-  case 7
-    fep = My_ISS(P, r, e1,e2,idx,dis);
-    feq = My_ISS(Q, r, e1,e2,idx,dis);
-  otherwise
-    error('no bandwidth specified')    
+  displayer = displayFunction;               %for Debug
+  
+  % for i=1:15                                %for Debug
+
+    switch nargin
+      case 5
+        % fep = My_ISS(P, r_P_k * i, e1,e2);
+        % feq = My_ISS(Q, r_Q_k * i, e1,e2);
+
+        fep = My_ISS(P, r, e1,e2);
+        feq = My_ISS(Q, r, e1,e2);
+      case 7
+        % fep = My_ISS(P, r_P_k * i, e1,e2,idx,dis);
+        % feq = My_ISS(Q, r_Q_k * i, e1,e2,idx,dis);
+
+        fep = My_ISS(P, r, e1,e2,idx,dis);
+        feq = My_ISS(Q, r, e1,e2,idx,dis);
+      otherwise
+        error('no bandwidth specified')    
+    end
+
+  	feq0 = feq;
+
+  	p0 = P(:,fep);
+  	q0 = Q(:,feq);
+
+    % num_p0_r(i) = size(p0,2);              %for Debug
+
+    % figure;                                    %for Debug
+    displayer.displayFinalPickKeyPoint(p0,q0); %for Debug
+    % i                                          %for Debug
+  % end                                      %for Debug
+  % figure                                   %for Debug
+  % plot(num_p0_r)                           %for Debug
+  % xlabel('i * den')                        %for Debug
+
 end
 
 
 
-	feq0 = feq;
-
-	p0 = P(:,fep);
-	q0 = Q(:,feq);
-
-  [n1,d1] = knn(P);
-  [n2,d2] = knn(Q);
-
-end
-
-
-
-function [n1,d1] = knn(P)
+function [n1,d1,r_k] = knn(P)
     [n1,d1] = knnsearch(transpose(P), transpose(P), 'k', 400);      %依次取各点 最近的400个点 ；
                                                                     %n1为返回的点的列数，按照距离递增排序；
                                                                     %d1为各点与该点的距离，递增排序；
                                                                     %结果为n*400阵
     n1=transpose(n1);                       %分别对n1，d1取转置为400*n阵
     d1=transpose(d1);
-
+    
+    %paper repetition
+    paper = paperISS;
+    r_k = paper.paper(d1);
+    border_point = paper.borderPoint(P);
+    
+    % %%边界点判断
+    % %构建KDtree
+    % NS = createns(P','NSMethod','kdtree');
+    % %半径检索
+    % r_border = 0.3;
+    % [idx_border,dis_border] = rangesearch(NS,P',r_border);
+    % %统计r_border半径下点数
+    % for i=1:size(idx_border,1)
+    %     num(i) = size(idx_border{i},2); 
+    % end
+    % %边界点
+    % e_num_border = 20;
+    % indx_border = find(num<e_num_border);
+    % border_point = P(:,indx_border);
 end
+
+% function [r_k]=paper(d1)
+%    %一种基于降采样后关键点优化的点云配准方法
+% %     save ../Datas/MatFiles/knn.mat                          %for Debug
+% % load ../Datas/MatFiles/knn.mat                                %for Debug
+% % for i=1:39                                  %for Debug
+%     %20邻域
+% %     k=10*i;                                 %for Debug  邻域越大平均半径越大
+%     k = 20;
+%     beita = 0.5;                            %取值[0,1]
+% 
+%     d_near = d1(2,:);                       %最近点
+%     d_aver = mean(d1(2:k+1,:),1);           %20邻域距离均值
+%     d_point_mean = mean(d_aver);            %整体点云k邻域均值
+%    
+%     %Devia = sqrt(mean((d1(2:k+1,:) - repmat(d_aver,k,1)).^2));     %标准差
+%     Devia = sqrt(mean((d1(2:k+1,:) - repmat(d_point_mean,k,size(d1,2))).^2));     %标准差
+%     
+%     b = ( d_aver <= (d_point_mean + beita * Devia) );
+%     den = (d_aver * b' + d_near * (~b)') / size(b,2);  %点云平均距离
+% %     den_record(i) = den;                     %for Debug
+% % end                                          %for Debug
+% % plot(den_record)                             %for Debug
+% 
+%    r_k = 1 * den;
+%    
+% 
+% end

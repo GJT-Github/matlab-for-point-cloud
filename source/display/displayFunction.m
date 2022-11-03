@@ -42,8 +42,20 @@ displayer.displayProcessOfICP = @displayProcessOfICP;                           
 %% 最终得到的旋转平移变换矩阵一次变换相关显示
 displayer.displayFinalQ2P = @displayFinalQ2P;                                     % 绘制最终得到的旋转平移矩阵一次变换结果
 
+global posionFigureX;
+global posionFigureY;
+global posionFigureZ;
+global posionFigureN;
+posionFigureX = 10;
+posionFigureY = 350;
+posionFigureZ = 500;
+posionFigureN = 400;
+
+global size_Point;
+size_Point = 6;
 
 end
+
 
 %% -----------------------------------------main----------------------------------------------------
 
@@ -54,18 +66,15 @@ function [] = displayInitPointCloud(P,Q)
     global posionFigureY;
     global posionFigureZ;
     global posionFigureN;
-    posionFigureX = 10;
-    posionFigureY = 350;
-    posionFigureZ = 500;
-	posionFigureN = 400;
+    global size_Point;
 
 	figure(1);                               %画读到的点云图
 	% set(gcf,'position',[10 350 500 400]);
 	set(gcf,'position',[posionFigureX,posionFigureY,posionFigureZ,posionFigureN]);
 	axe(1)=subplot(221);
-	plot3(P(1,:),P(2,:),P(3,:),'r.');        %plot绘图函数，分别取P中第1.2.3行所有点作为坐标轴，r表示颜色
+	plot3(P(1,:),P(2,:),P(3,:),'r.','markersize',size_Point);        %plot绘图函数，分别取P中第1.2.3行所有点作为坐标轴，r表示颜色
 	hold on
-	plot3(Q(1,:),Q(2,:),Q(3,:),'b.');
+	plot3(Q(1,:),Q(2,:),Q(3,:),'b.','markersize',size_Point);
 	title('模板点云与场景点云初始位置')
 	view(3)
 end
@@ -83,6 +92,7 @@ function [] = displayNormalOnSourcePointCloud(P,normal)
 	plot3(P(1,:),P(2,:),P(3,:),'r.');        %plot绘图函数，分别取P中第1.2.3行所有点作为坐标轴，r表示颜色
 	hold on
 	quiver3( P(1,:) , P(2,:) , P(3,:)  ,  normal(1,:) , normal(2,:) , normal(3,:) ,'g');
+    plot3(0,0,0,'b*');
 	xlabel('x');ylabel('y');zlabel('z');
 	title('源点云法向量显示');
 end
@@ -108,17 +118,54 @@ end
 %绘制最终提取的特征点
 function [] = displayFinalPickKeyPoint(p0,q0)
     global axe;
+    global size_Point;
+
     figure(1);
+    % colordef black; % 2D/3D图背景黑色
     axe(3)=subplot(223);
-    plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
+    plot3(p0(1,:),p0(2,:),p0(3,:),'r.','markersize',size_Point);
     title('目标点云关键点精提取')
-    view(3)
-    figure(1);
-    axe(4)=subplot(224);
-    plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
-    title('模板点云关键点精提取')
-    view(3)
-    linkaxes(axe,'xy')
+
+    aplha=0:pi/40:2*pi;
+    global r_P_k r_Q_k;
+
+    % 绘制集合球
+    for i=1:3:20 
+
+        % r=2;        
+        x=r_P_k *cos(aplha) + p0(1,i);
+        y=r_P_k *sin(aplha) + p0(2,i);
+        hold on
+        % plot3(x,y,repmat(int32(p0(3,1)),size(x),1),'b-');
+        plot3(x,y,repelem(p0(3,i),size(x,2)),'b-')
+        plot3(p0(1,i),p0(2,i),p0(3,i),'b*');
+
+        x=r_P_k *cos(aplha) + p0(1,i);
+        z=r_P_k *sin(aplha) + p0(3,i);
+        hold on
+        % plot3(x,y,repmat(int32(p0(3,1)),size(x),1),'b-');
+        plot3(x,repelem(p0(2,i),size(x,2)),z,'b-')
+
+        y=r_P_k *cos(aplha) + p0(2,i);
+        z=r_P_k *sin(aplha) + p0(3,i);
+        hold on
+        % plot3(x,y,repmat(int32(p0(3,1)),size(x),1),'b-');
+        plot3(repelem(p0(1,i),size(x,2)),y,z,'b-')
+        hold off
+        
+    end
+
+        axis equal
+        view(2)
+
+        % figure(1);
+        axe(4)=subplot(224);
+        plot3(q0(1,:),q0(2,:),q0(3,:),'b.','markersize',size_Point);
+        title('模板点云关键点精提取')
+        view(2)
+
+        linkaxes(axe,'xy')
+    
 end
 
 %--------------------------------------------featurePoint_end------------------------------------------

@@ -1,4 +1,4 @@
-function [p0,q0,feq,nv] = RANSAC(P,Q,fep,feq,feq0,aa,nv)
+function [p0,q0,feq,nv] = RANSAC(P,Q,fep,feq,feq0,aa,nv,e_RANSAC_Distance)
 % = () ：% 随机采样一致性算法
 %      
 %  输入参数 
@@ -7,8 +7,9 @@ function [p0,q0,feq,nv] = RANSAC(P,Q,fep,feq,feq0,aa,nv)
 %    fep     ：模板点云特征点的索引
 %    feq     ：场景点云特征点的索引
 %    feq0    ：场景点云特征点的索引备份 
-%    aa : 抽样次数
+%    aa      : 抽样次数
 %    nv      : PFH描述中的最近邻点索引
+%    e_RANSAC_Distance ：%随机采样一致性距离阈值
 % 
 %  输出参数
 %    p0      ：模板点云的特征点集合 剔除后 
@@ -44,7 +45,7 @@ function [p0,q0,feq,nv] = RANSAC(P,Q,fep,feq,feq0,aa,nv)
 
         for i = 1:n
             % if norm(difference(:,i))<0.0012
-            if norm(difference(:,i)) < 0.005
+            if norm(difference(:,i)) < e_RANSAC_Distance    %0.005 for bun0*.asc
                 b = b + 1;
                 c(i) = 1;
             end

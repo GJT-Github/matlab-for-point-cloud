@@ -1,4 +1,4 @@
-function [p0,q0,feq,nv]= removeWrongMatch(P,Q,p0,q0,fep,feq,feq0,vep,veq)      %
+function [p0,q0,feq,nv]= removeWrongMatch(P,Q,p0,q0,fep,feq,feq0,vep,veq,e_Delet_Distance,e_RANSAC_Distance)      %
 % [p0,q0,feq]= removeWrongMatch(P,Q,p0,q0,fep,feq,feq0,vep,veq) ：剔除误匹配点
 %      
 %  输入参数  
@@ -11,7 +11,8 @@ function [p0,q0,feq,nv]= removeWrongMatch(P,Q,p0,q0,fep,feq,feq0,vep,veq)      %
 %    feq0    ：场景点云特征点的索引备份  1 * n
 %    vep     ：场景点云特征点的PFH描述   64 * n
 %    veq     ：场景点云特征点的PFH描述   64 * n
-%  
+%    e_Delet_Distance  : 剔除最远点的距离阈值
+%    e_RANSAC_Distance : 随机采样一致性距离阈值
 %
 %  输出参数
 %    p0      ：剔除误匹配后剩余正确匹配对应点,模板点云特征点 剔除后 3 * n
@@ -37,7 +38,8 @@ displayer.displayPointCloudAndLine(P,Q,p0,q0,fep,feq,nv);
 
 
 %% 1、剔除 距离过远的对应点
-[p0,q0,feq,nv] = DeleteDisdence(P,Q,fep,feq,feq0,nv);
+% e_Delet_Distance = 0.05;     %距离阈值
+[p0,q0,feq,nv] = DeleteDisdence(P,Q,fep,feq,feq0,nv,e_Delet_Distance);
 
 %绘制 删除距离大于0.05后的图
 displayer.displayDeleteDisdencePointCloudAndLine(P,Q,p0,q0,fep,feq,nv);
@@ -51,8 +53,9 @@ displayer.displayRigidInvariantConstraintsPointCloudAndLine(P,Q,p0,q0,fep,feq,nv
 
 
 %% 3、使用随机抽样一致性算法RANSAC确定匹配关系
-aa = 500;    %抽样次数
-[p0,q0,feq,nv] = RANSAC(P,Q,fep,feq,feq0,aa,nv);
+aa = 500;                       %抽样次数
+% e_RANSAC_Distance = 0.005;    %随机采样一致性距离阈值
+[p0,q0,feq,nv] = RANSAC(P,Q,fep,feq,feq0,aa,nv,e_RANSAC_Distance);
 
 %RANSAC剔除误匹配后的结果绘制
 displayer.displayRANSACPointCloudAndLine(P,Q,p0,q0,fep,feq,nv);
