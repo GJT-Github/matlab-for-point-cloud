@@ -1,0 +1,14 @@
+clc;
+clear;
+source = pcread('1.pcd');
+target = pcread('2.pcd');
+figure;
+pcshowpair(source,target);%创建一个可视化描述两个输入点云之间的差异。
+title('点云初始位置')
+[tform,movingReg,rmse] = pcregistericp(source,target);
+disp(tform);
+disp(rmse);
+figure;
+pcshowpair(target,movingReg);
+title('配准后的点云')
+

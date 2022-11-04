@@ -8,16 +8,22 @@ function Main   %https://blog.csdn.net/weixin_37610397/article/details/80441523
 	clc
 	clear
 	close all
-
-	
+    
 	addpath(genpath('../source/'))   %addpath 是添加SGDLibrary-master目录   genpath 是读取SGDLibrary-master目录所有子目录
 	%% 读取文件
 
 % 	file1='../Datas/bun045.asc';
 % 	file2='../Datas/bun000.asc';
 
-	file1='../Datas/rabbit.pcd';
-	file2='../Datas/rabbit_z_45.pcd';
+% 	file1='../Datas/rabbit.pcd';
+% 	file2='../Datas/rabbit_z_45.pcd';
+
+	file1='../Datas/sdanford/bun000.ply';
+	file2='../Datas/sdanford/bun045.ply';
+
+	% S=pcread('../Datas/sdanford/bun000.ply');
+	% T=pcread('../Datas/sdanford/bun045.ply');
+	% rmse(S,T,0,0.001);
 
 	tic         %计时开始 for Debug
 
@@ -29,8 +35,9 @@ function Main   %https://blog.csdn.net/weixin_37610397/article/details/80441523
 	displayer = displayFunction;
 	displayer.displayInitPointCloud(P,Q);   %P :红 Q:蓝
 
-
-    [P_bin,P_max,P_min] = box(P);       % for Debug
+%     global longline;
+%     [P_bin,P_max,P_min,longline] = box(P);       % for Debug
+    
 
 	%% 通过8邻域PCA建立 法向量估计 [pn、qn]
 	% PCA法向量估计：某点邻域协方差矩阵最小特征值对应特征向量即该点法向量
@@ -56,15 +63,21 @@ function Main   %https://blog.csdn.net/weixin_37610397/article/details/80441523
     % 2、ISS特征点  
     % Note：1、阈值选取？ 2、取得大多是边缘？ 3、横向对比
 	r  = 0.05;                             % 邻域半径
-	e1 = 0.7;                              % 中间特征值与最大特征值之比的 阈值
-	e2 = 0.4;                              % 中间特征值与最小特征值之比的 阈值  
+	e1 = 0.1;                              % 中间特征值与最大特征值之比的 阈值
+	e2 = 0.7;                              % 中间特征值与最小特征值之比的 阈值  
 
 %   r  = 0.005;                            % 邻域半径
 % 	e1 = 0.6;                              % 中间特征值与最大特征值之比的 阈值
-% 	e2 = 0.3;    
+% 	e2 = 0.3;  
+% for e1 =0.3:0.2:0.9                      % for Debug e1 和 e2 不同取值关键点影响
+% for e2 = 0.1:0.1:0.8
     tic
 	[p0,q0,fep,feq,feq0,n1,d1,n2,d2] = keyPointOfISS(P,Q,r,e1,e2);  
     toc
+% end
+% input(string);
+% close all
+% end
 % 	mean(d1(2,:))                        % for Debug           
 % 	mean(d2(2,:))                        % for Debug
 %     [P_bin,P_max,P_min] = box(P);       % for Debug
@@ -84,7 +97,8 @@ function Main   %https://blog.csdn.net/weixin_37610397/article/details/80441523
 	% clc                                    % for Debug
 % 	load ../Datas/MatFiles/FP.mat            % for Debug
 tic
-	r_PFH = 0.5; %0.03
+global r_P_k r_Q_k;
+	r_PFH = r_P_k; %0.03
 	[vep,veq] = PFHCaculate(P,Q,p0,q0,fep,feq,pn,qn,n1,d1,n2,d2,r_PFH);
 % 	[vep] = pfhDescriptor(P,fep,pn,n1,d1) ;
 toc
@@ -99,7 +113,7 @@ toc
 	% posionFigureN = 400;          % for bedug
 	displayer.displayPFHOfKeyPoint(vep);
 
-	save ../Datas/MatFiles/PFHC.mat         % for Debug
+	% save ../Datas/MatFiles/PFHC.mat         % for Debug
 	
 	
 	% 2、FPFH
@@ -130,10 +144,10 @@ toc
 
 	%% demo_3
 	%% 误匹配剔除
-	close all                             % for Debug
-	clear all                             % for Debug
-	clc                                   % for Debug
-	load ../Datas/MatFiles/PFHC.mat       % for Debug
+	% close all                             % for Debug
+	% clear all                             % for Debug
+	% clc                                   % for Debug
+	% load ../Datas/MatFiles/PFHC.mat       % for Debug
 % 	load ../Datas/MatFiles/FPFHC.mat      % for Debug
 	e_Delet_Distance  = 0.5;                    %0.05  for bun0*.asc
 	e_RANSAC_Distance = 0.005;                  %0.005 for bun0*.asc
@@ -143,8 +157,8 @@ toc
 
 
 	%%  均方根评价
-	%load ../Datas/MatFiles/RWM.mat         % for Debug
-	RMSE(p0,q0)
+% 	load ../Datas/MatFiles/RWM.mat         % for Debug
+% 	RMSE(p0,q0)
 
 
 	%% 特征匹配/配准
@@ -154,7 +168,7 @@ toc
 	% load ../Datas/MatFiles/RWM.mat        % for Debug
 	[Q1,R_Coarse,T_Coarse] = coarseRegistration(P,Q,fep,feq,nv);
 
-% 	save ../Datas/MatFiles/CR.mat           % for Debug
+	save ../Datas/MatFiles/CR.mat           % for Debug
 
 
 	%% 精配准
@@ -166,13 +180,14 @@ toc
 	% [R_Final,T_Final] = icp(Q1',P');                    % Q1 --transform--> P
 	% [R_Final,T_Final] = icp(Q',P');                     % Q1 --transform--> P
     
-    % save ../Datas/MatFiles/FR.mat          % for Debug
+    save ../Datas/MatFiles/FR.mat          % for Debug
 
 
 	%% 最终的旋转平移矩阵
     % load ../Datas/MatFiles/FR.mat            % for Debug
-	% R = R_Final * R_Coarse;
-	% T = R_Final * T_Coarse + T_Final;
+	R = R_Final * R_Coarse;
+	T = R_Final * T_Coarse + T_Final;
+    Q2 = R * Q + T * ones( 1 , size( Q , 2 ) );
 	% H = [R,T;0 0 0 1];                       % P = H * Q  -->  P = R * Q + T
 % 
 	% displayer.displayFinalQ2P(P,R * Q + T * ones(1,size( Q , 2 )));

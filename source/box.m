@@ -1,4 +1,4 @@
-function [P_bin,P_max,P_min] = box(Point)
+function [P_bin,P_max,P_min,longline] = box(Point)
 
 	for i = 1:3
 		if i==1
@@ -16,6 +16,9 @@ function [P_bin,P_max,P_min] = box(Point)
 	P_bin(1) = P_max(1)-P_min(1);
 	P_bin(2) = P_max(2)-P_min(2);
 	P_bin(3) = P_max(3)-P_min(3);
+    
+    %最小包围盒对角线长度
+    longline = sqrt(sum(P_bin.^2));
 
 
 end
