@@ -31,7 +31,7 @@ for i = 1:length(nv)
         end
         dq = norm(Q(:,feq(i))-Q(:,feq(j)));         %norm求Q中 第i个关键点与第j个关键点的 二范数  
         dp = norm(P(:,fep(nv(i)))-P(:,fep(nv(j)))); %norm求P中距离Q中第i个关键点最近点与距离Q中第j个关键点最近点的二范数
-        if abs(dp-dq)/(dp+dq)<0.2        %abs取绝对值函数，判断(dp-dq)/(dp+dq)<0.02
+        if abs(dp-dq)/(dp+dq)<0.02        %abs取绝对值函数，判断(dp-dq)/(dp+dq)<0.02
             a = a + 1;                    %在第i个关键点下，满足条件的计数一次
         end
     end

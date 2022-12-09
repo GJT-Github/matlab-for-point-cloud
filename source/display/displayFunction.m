@@ -15,6 +15,8 @@ function  displayer = displayFunction      %绘图封装
 %  Author：GJT 
 %  E-mail：gjt0114@outlook.com
 
+% warning off % 开启警告/显示警告
+
 %% 点云读取相关显示
 displayer.displayInitPointCloud = @displayInitPointCloud;                         %读点云绘制
 displayer.displayNormalOnSourcePointCloud = @displayNormalOnSourcePointCloud;     %法向量绘制
@@ -53,6 +55,10 @@ posionFigureN = 400;
 
 global size_Point;
 size_Point = 6;
+global num_Figure;
+num_Figure=1;
+
+
 
 end
 
@@ -67,8 +73,9 @@ function [] = displayInitPointCloud(P,Q)
     global posionFigureZ;
     global posionFigureN;
     global size_Point;
+    global num_Figure;
 
-	figure(1);                               %画读到的点云图
+	figure(num_Figure);                               %画读到的点云图
 	% set(gcf,'position',[10 350 500 400]);
 	set(gcf,'position',[posionFigureX,posionFigureY,posionFigureZ,posionFigureN]);
 	axe(1)=subplot(221);
@@ -163,8 +170,9 @@ function [] = displayFinalPickKeyPoint(p0,q0)
         plot3(q0(1,:),q0(2,:),q0(3,:),'b.','markersize',size_Point);
         title('模板点云关键点精提取')
         view(2)
-
+        warning off % 开启警告/显示警告
         linkaxes(axe,'xy')
+        warning on % 开启警告/显示警告
     
 end
 
@@ -327,7 +335,9 @@ function []=displayRigistration(P,Q1)
     xlabel('x');ylabel('y');zlabel('z');
     title('四元数配准');
     view(3)
+    warning off % 开启警告/显示警告
     linkaxes(axe(2:6),'xy')
+    warning on % 开启警告/显示警告
 
 
 end

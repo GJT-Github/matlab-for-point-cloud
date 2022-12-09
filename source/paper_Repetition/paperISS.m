@@ -7,7 +7,7 @@ paperFunction.borderPoint =@borderPoint;
 end
 
 
-function [r_k]=paper(d1)
+function [r_k]=paper(P)
     % d1   : 目标点云 400个邻域点 距离 从小到大排序 400 * n
        
     % save knn.mat                                                            %for Debug
@@ -17,6 +17,8 @@ function [r_k]=paper(d1)
     %     k=10*i;                                                             %for Debug  邻域越大平均半径越大
         k = 20;                                 %领域值
         beita = 0.5;                            %取值[0,1]
+
+        [~,d1]=knnsearch(transpose(P), transpose(P), 'k', k); 
 
         d_near = d1(2,:);                       %最近点            a
         
@@ -36,28 +38,36 @@ function [r_k]=paper(d1)
 end
 
 
-function [border_point] = borderPoint(P,p0)
+function [border_point,indx_border] = borderPoint(P,p0,varargin)
     % P             : 输入 3 * n 点云
     % border_point  ：输出 3 * m 边界内或边界外点
 
-    [~,~,~,longline] = box(P);                       %输入点云最小包围盒对角线长度
+    % 默认参数设置 e_num 默认为10
+     %https://www.cnblogs.com/gshang/p/14532104.html
+    p = inputParser;                                  % 函数的输入解析器
+    addParameter(p,'e_num',10);                       % 设置变量名和默认参数
+    parse(p,varargin{:});                             % 对输入变量进行解析，如果检测到前面的变量被赋值，则更新变量取值
+
+    %输入点云最小包围盒对角线长度
+    [~,~,~,longline] = box(P);     
+                      
     % for n=1:50                                                                %for Debug 边界点阈值
-        n=10;                                        %邻域球内点数阈值
+        % n=10;                                        %邻域球内点数阈值
+
         %%边界点判断
         %构建KDtree
         NS = createns(P','NSMethod','kdtree');
         %半径检索
-
-        r_border = longline/100;                     % rabit 0.3   
+        r_border = longline/100;                       % rabit 0.3   
         [idx_border,dis_border] = rangesearch(NS,p0',r_border);
         %统计r_border半径下点数
         for i=1:size(idx_border,1)
             num(i) = size(idx_border{i},2); 
         end
         %边界点
-        e_num_border = n;                             % 边界点阈值
+        e_num_border = p.Results.e_num;                             % 边界点阈值
         indx_border  = find(num>e_num_border);        % <为边界，>为非边界 ，边界点列索引
-        border_point = p0(:,indx_border);              % 边界点云
+        border_point = p0(:,indx_border);             % 边界点云
         
         %展示边界点
         % figure;                                                              

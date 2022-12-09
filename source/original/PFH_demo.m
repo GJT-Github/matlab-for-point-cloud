@@ -2,8 +2,8 @@ clc
 clear
 close all
 %% 特征点的提取
-file1='bun045.asc';
-file2='bun000.asc';
+file1='../Datas/bun045.asc';
+file2='../Datas/bun000.asc';
 
 %%读取asc文件
 data1 = ascread(file1);                  %读取asc类型点云，读到的数据为cell类型的2*1形式，1*1为点总数，2*1为所有点坐标值

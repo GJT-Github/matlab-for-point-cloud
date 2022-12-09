@@ -25,8 +25,8 @@ function [R_Final,T_Final]= fineRegistration(data_target,data_source)      %
     step_Tolerance   = 1.0e-14;                   % 迭代容差步长阈值
 
 
-    inlier_ratio     = 0.999;                     % 0.999 内点判定比例（欧式距离为判定条件）
-    B_baoHeDu        = 2.5;                       % M估计中饱和度B
+    inlier_ratio     = 1;                     % 0.999 内点判定比例（欧式距离为判定条件）
+%     B_baoHeDu        = 2.5;                       % M估计中饱和度B
   
     kd               = 1;                         % 对应点搜索选择,0：欧式距离寻找对应点 1：KD-tree寻找对应点
   
@@ -44,8 +44,9 @@ function [R_Final,T_Final]= fineRegistration(data_target,data_source)      %
 
 % data_source     = Rf * data_source + Tf * ones( 1 , size( data_source , 2) );      %初次更新点集（代表粗配准结果）,加入粗配准后注释掉
 
-    data_source_old = data_source;              %中间变换存放
+    data_source_old = data_source;               %中间变换存放
     t_a = 0;
+    displayer = displayFunction;                 %$显示迭代过程
 
 %迭代前显示 debug
 % displayer = displayFunction;
@@ -79,11 +80,12 @@ while(1)
     end   
 
 
-    %迭代误差记录
-    disp( [ '误差err=' , num2str( mean( dist ) ) ] );
-    disp( ['迭代次数iteration=' , num2str( iteration ) ] );
-    err_rec( iteration ) = mean( dist );
-    err = min( err_rec );
+%     %迭代误差记录
+%     disp( [ '误差err=' , num2str( mean( dist ) ) ] );
+%     disp( ['迭代次数iteration=' , num2str( iteration ) ] );
+%     err_rec( iteration ) = mean( dist );
+%     err = min( err_rec );
+%     rmse= sqrt(err);
 
 
     %剔除外点
@@ -98,12 +100,24 @@ while(1)
         data_mid   = data_target( : , index ); 
     %不剔除外点
     else      
-        [~, idx]   = sort( dist );  
-        index      = index( idx );
+%         [~, idx]   = sort( dist );  
+%         index      = index( idx );
+        inlier_num = size( data_source , 2 ) ;
         
         data_source_temp = data_source;
-        data_mid         = data_target;  
+        data_mid         = data_target(:,index);  
     end
+
+    %迭代误差记录
+    dist=mink(dist,inlier_num);
+    err_rec( iteration ) = mean( dist );
+    err = min( err_rec );
+    % rmse= sqrt(err);
+
+    % disp( [ '误差MSE=' , num2str( mean( dist ) ) ] );
+    % disp( [ '误差RMSE=' , num2str( sqrt( mean( dist.^2 ) ) ) ] );
+    % disp( ['迭代次数iteration=' , num2str( iteration ) ] );
+
 
 %计算旋转平移矩阵前显示 debug
 % close all
@@ -112,7 +126,7 @@ while(1)
 
     % 单元四元素求解 旋转矩阵R 与 平移向量T    data_source -> data_mid
     % [R_new,t_new] = Quater_Registration(data_source', data_target(:,index)');
-    % [R_new,t_new] = Quater_Registration(data_source_temp', data_mid');
+%     [R_new,t_new] = Quater_Registration(data_source_temp', data_mid');
 
     % 去中心化后SVD分解求解旋转矩阵与平移向量   data_source -> data_mid
     [R_new, t_new] = rigidTransform3D( data_source_temp' ,  data_mid' );
@@ -154,26 +168,6 @@ while(1)
      
 
 
-    % 显示中间结果（配准过程）
-    if show_flag == 1
-        if iteration == 1
-            % h = figure( 'position' , [ left + width + 10 * 1 , bottom , width , hight ] );
-            figure(num_figure);
-        end
-        scatter3( data_source( 1 , : ) , data_source( 2 , : ) , data_source( 3 , : ) , 'b.' );
-        hold on;
-        scatter3( data_target( 1 , : ) , data_target( 2 , : ) , data_target( 3 , : ) , 'r.' );
-        hold off;
-        title( '配准过程展示' )
-        xlabel( 'x' );
-        ylabel( 'y' );
-        zlabel( 'z' );
-        grid on;
-        legend( 'source-file_1(模板)' , 'target-file_2' )
-        daspect( [1 1 1] );
-        pause( 0.1 );
-        drawnow
-    end
    
     % 收敛判别 目标函数误差收敛于阈值，则终止迭代
         %误差达到阈值
@@ -202,10 +196,39 @@ while(1)
             disp( '情况3：迭代次数达到阈值，结束优化' );
             break
         end
+
       time_record(iteration) = toc;
       t_a(iteration+1) = t_a(iteration) + time_record(iteration);
-      disp([ '排序耗时：',num2str(time_record(iteration)) ])
-      disp([' s '])
+
+    % 显示中间结果（配准过程）
+    if show_flag == 1
+        % if iteration == 1
+        %     % h = figure( 'position' , [ left + width + 10 * 1 , bottom , width , hight ] );
+        %     figure(num_figure);
+        % end
+        % scatter3( data_source( 1 , : ) , data_source( 2 , : ) , data_source( 3 , : ) , 'b.' );
+        % hold on;
+        % scatter3( data_target( 1 , : ) , data_target( 2 , : ) , data_target( 3 , : ) , 'r.' );
+        % hold off;
+        % title( '配准过程展示' )
+        % xlabel( 'x' );
+        % ylabel( 'y' );
+        % zlabel( 'z' );
+        % grid on;
+        % legend( 'source-file_1(模板)' , 'target-file_2' )
+        % daspect( [1 1 1] );
+        % pause( 0.1 );
+        % drawnow
+
+
+        displayer.displayProcessOfICP(data_source,data_target,iteration,num_figure);    %$
+
+        disp( [ '误差 MSE  = '          , num2str( mean( dist.^2 ) ) ] );
+        disp( [ '误差 RMSE = '          , num2str( sqrt( mean( dist.^2 ) ) ) ] );
+        disp( [ '迭代次数 iteration = ' , num2str( iteration ) ] );
+        disp( [ '排序耗时：'            , num2str(time_record(iteration)) ,' s '] );
+
+    end
       
 end
 
@@ -214,11 +237,12 @@ T_Final = Tf;
 
 % figure('position' , [ left  , bottom - hight , width , hight ]);
 figure(num_figure + 1);
-plot(time_record)
+plot(time_record,'b-')
 hold on
 line([0,iteration],[mean(time_record),mean(time_record)],'color','r')
 % line([0,iteration],[t_a(1),t_a(iteration)],'color','g')
-legend('time of one time iteration','average of all time iteration','up time')
+% legend('time of one time iteration','average of all time iteration','up time')
+legend('time of one time iteration','average of all time iteration')
 
 % time_end = toc;
 
@@ -243,6 +267,7 @@ else
     clear k
 end
 
+dist = mink(dist,inlier_num);
 err_rec( iteration + 1 ) = mean( dist );
 
 %迭代优化过程中误差变化曲线
@@ -279,9 +304,10 @@ if inlier_flag == 1
 else
     disp( [ '********************不剔除外点********************' ] )
 end
-disp( [ ' 点云数据集规模：',num2str( size( data_source , 2 ) ) ] );
-disp( [ ' 最终误差err=' , num2str( mean( dist ) ) ] );
-% disp( [ ' ICP配准时间：' , num2str( time_end ) , 's' ] );                % time=18.1993    err=8.1929e-17    iteration=41
+disp( [ ' 点云数据集规模：', num2str( size( data_source , 2 ) ) ] );
+disp( [ ' 最终误差mse='    , num2str( mean( dist.^2 ) ) ] );
+disp( [ ' 最终误差rmse='   , num2str( sqrt( mean( dist.^2 ) ) ) ] );
+disp( [ ' ICP配准时间：'   , num2str( sum( time_record ) ) , 's' ] );    % time=18.1993    err=8.1929e-17    iteration=41
                                                                          % time=18.2324    err=8.1929e-17   iteration=41
 disp( [ ' 迭代次数：' , num2str( iteration ) , '次' ] );
  

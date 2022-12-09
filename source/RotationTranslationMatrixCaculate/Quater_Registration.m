@@ -7,15 +7,18 @@ function [R,T] = Quater_Registration(Source, Target)
 m = size(Source,1);
 ASource = [];
 BTarget = [];
+
 for i=1:m-1
     ASource(i,:) = Source(i,:) - Source(i+1,:);
 end
+
 for i=1:m-1
     BTarget(i,:) = Target(i,:) - Target(i+1,:);
 end
 
 A=[];
 B=[];
+
 for k=1:i
     v=ASource(k,:)+BTarget(k,:);
     C = [ 0   -v(3) v(2);
