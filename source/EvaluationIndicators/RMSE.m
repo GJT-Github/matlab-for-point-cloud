@@ -43,7 +43,8 @@ function  [E_rmse]= RMSE(p0,q0)      %
 
 % [~,dis_border] = knnsearch(q0',p0','k',1);
 [~,dis_border] = knnsearch(p0',q0','k',1);
-
+disp(['MAE:',num2str(mean(dis_border(:,1)))]);
+disp(['MSE:',num2str(mean(dis_border(:,1).^2))]);
 E_rmse = sqrt(mean(dis_border(:,1).^2));
 % E_rmse = sqrt(mean(dis_border(:,1)));
 

@@ -31,7 +31,7 @@ function [p0,q0,fep,feq,feq0,n1,d1,n2,d2] = keyPointOfISS(P,Q, r, e1,e2,idx,dis)
   [n1,d1,n2,d2]=Knncaculate(P,Q);
 
 % %文献复现 2.1.1自适应点云平均距离计算
-%   paper = paperISS;
+  paper = paperISS;
 %   r_P_k = paper.paper(P) * 5;
 %   r_Q_k = paper.paper(Q) * 5;
  
@@ -44,33 +44,33 @@ function [p0,q0,fep,feq,feq0,n1,d1,n2,d2] = keyPointOfISS(P,Q, r, e1,e2,idx,dis)
 
     % displayer.displayFinalPickKeyPoint(p0,q0); %for Debug
     figure;
-    % plot3(P(1,:),P(2,:),P(3,:),'y.');
-    % hold on
-%     plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
-r_point_cmatrix = ones(size(p0')).*[1 0 0];
-temp_pointcloud = pointCloud(p0','Color',r_point_cmatrix);
-pcshow(temp_pointcloud)
+    plot3(P(1,:),P(2,:),P(3,:),'y.');
+    hold on
+    plot3(p0(1,:),p0(2,:),p0(3,:),'r.');
+% r_point_cmatrix = ones(size(p0')).*[1 0 0];
+% temp_pointcloud = pointCloud(p0','Color',r_point_cmatrix);
+% pcshow(temp_pointcloud)
     title(num2str(size(p0,2)));
-    play_ball(p0);
+%     play_ball(p0);
     % figure;
     % plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
 
 %文献复现 2.2基于球邻域的边界点判断 优化关键点
-    % border_point = paper.borderPoint(P);
+%     border_point = paper.borderPoint(P);
     [p0,~] = paper.borderPoint(P,p0);
     [q0,~] = paper.borderPoint(Q,q0);
     
 
     % num_p0_r(i) = size(p0,2);                %for Debug
 
-%     figure;                                      %for Debug
-    % displayer.displayFinalPickKeyPoint(p0,q0); %for Debug
+    figure;                                      %for Debug
+    displayer.displayFinalPickKeyPoint(p0,q0); %for Debug
     hold on
-%     plot3(p0(1,:),p0(2,:),p0(3,:),'b.');
-b_point_cmatrix = ones(size(p0')).*[0 0 1];
-temp_pointcloud = pointCloud(p0','Color',b_point_cmatrix);
-pcshow(temp_pointcloud)
-    title(num2str(size(p0,2)),['e1=',num2str(e1),'e2=',num2str(e2)]);
+    plot3(p0(1,:),p0(2,:),p0(3,:),'b.');
+% b_point_cmatrix = ones(size(p0')).*[0 0 1];
+% temp_pointcloud = pointCloud(p0','Color',b_point_cmatrix);
+% pcshow(temp_pointcloud)
+%     title(num2str(size(p0,2)),['e1=',num2str(e1),'e2=',num2str(e2)]);
     % play_ball(p0);
      axis equal;
     % i                                        %for Debug

@@ -38,7 +38,7 @@ function [r_k]=paper(P)
 end
 
 
-function [border_point,indx_border] = borderPoint(P,p0,varargin)
+function [border_point,indx_border,No_indx_border] = borderPoint(P,p0,varargin)
     % P             : 输入 3 * n 点云
     % border_point  ：输出 3 * m 边界内或边界外点
 
@@ -66,8 +66,9 @@ function [border_point,indx_border] = borderPoint(P,p0,varargin)
         end
         %边界点
         e_num_border = p.Results.e_num;                             % 边界点阈值
-        indx_border  = find(num>e_num_border);        % <为边界，>为非边界 ，边界点列索引
-        border_point = p0(:,indx_border);             % 边界点云
+        No_indx_border  = find(num>e_num_border);        % <为边界，>为非边界 ，边界点列索引
+        indx_border  = find(num<e_num_border);
+        border_point = p0(:,No_indx_border);             % 边界点云
         
         %展示边界点
         % figure;                                                              

@@ -25,7 +25,7 @@ function [R_Final,T_Final]= fineRegistration(data_target,data_source)      %
     step_Tolerance   = 1.0e-14;                   % 迭代容差步长阈值
 
 
-    inlier_ratio     = 1;                     % 0.999 内点判定比例（欧式距离为判定条件）
+    inlier_ratio     = 0.95;                     % 0.999 内点判定比例（欧式距离为判定条件）
 %     B_baoHeDu        = 2.5;                       % M估计中饱和度B
   
     kd               = 1;                         % 对应点搜索选择,0：欧式距离寻找对应点 1：KD-tree寻找对应点
@@ -223,6 +223,7 @@ while(1)
 
         displayer.displayProcessOfICP(data_source,data_target,iteration,num_figure);    %$
 
+        disp( [ '误差 MAE  = '          , num2str( mean( dist ) ) ] );
         disp( [ '误差 MSE  = '          , num2str( mean( dist.^2 ) ) ] );
         disp( [ '误差 RMSE = '          , num2str( sqrt( mean( dist.^2 ) ) ) ] );
         disp( [ '迭代次数 iteration = ' , num2str( iteration ) ] );
@@ -306,6 +307,7 @@ else
 end
 disp( [ ' 点云数据集规模：', num2str( size( data_source , 2 ) ) ] );
 disp( [ ' 最终误差mse='    , num2str( mean( dist.^2 ) ) ] );
+disp( [ ' 最终误差mae='    , num2str( mean( dist ) ) ] );
 disp( [ ' 最终误差rmse='   , num2str( sqrt( mean( dist.^2 ) ) ) ] );
 disp( [ ' ICP配准时间：'   , num2str( sum( time_record ) ) , 's' ] );    % time=18.1993    err=8.1929e-17    iteration=41
                                                                          % time=18.2324    err=8.1929e-17   iteration=41

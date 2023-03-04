@@ -1,4 +1,4 @@
-function [p0,q0,feq,nv] = DeleteDisdence(P,Q,fep,feq,feq0,nv,e_Delet_Distance)
+function [feq,nv,e_Delet_Distance] = DeleteDisdence(P,Q,fep,feq,feq0,nv)
 %  [p0,q0,feq,nv] = DeleteDisdence(P,Q,fep,feq,feq0,nv)  : 剔除 距离过远的对应点
 %
 %  输入参数  
@@ -25,13 +25,16 @@ function [p0,q0,feq,nv] = DeleteDisdence(P,Q,fep,feq,feq0,nv,e_Delet_Distance)
         dist(1,i) = norm( Q( :,feq(i) ) - P( :,fep( nv(1,i) ) ) );%二范数Q(:,feq(i))表示Q点云中的第i个关键点，P(:,fep(nv(1,i))表示P点云中距离Q中第i关键点最近点
     end
 
-    % feq(dist>e_Delet_Distance) = [];                    %从feq中删除距离大于0.05的最近点（关键点）的指标
-    % nv(dist>e_Delet_Distance)  = [];                     %从nv中删除距离大于0.05的特征描述子的指标
+    e_Delet_Distance = 1.0*mean(dist);
 
-    feq(dist>mean(dist)) = [];                    %从feq中删除距离大于0.05的最近点（关键点）的指标
-    nv(dist>mean(dist))  = [];                    %从nv中删除距离大于0.05的特征描述子的指标
+    feq(dist>e_Delet_Distance) = [];                    %从feq中删除距离大于0.05的最近点（关键点）的指标
+    nv(dist>e_Delet_Distance)  = [];                    %从nv中删除距离大于0.05的特征描述子的指标
 
-    p0 = P(:,fep);
-    q0 = Q(:,feq0);
+%     p0 = P(:,fep);
+%     q0 = Q(:,feq0);
+
+%     %绘制 删除距离大于0.05后的图
+%     displayer = displayFunction;
+%     displayer.displayDeleteDisdencePointCloudAndLine(P,Q,p0,q0,fep,feq,nv,e_Delet_Distance);
 
 end

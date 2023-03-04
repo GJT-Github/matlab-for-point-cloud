@@ -23,31 +23,55 @@ function [p0,q0,fep,feq,feq0,n1,d1,n2,d2]= featurePoint(P,Q,pn,qn,k)      %ÌØÕ÷µ
 %  Author£ºGJT 
 %  E-mail£ºgjt0114@outlook.com
 
-% ÌŞ³ı±ßÔµµã
-[P]=border(P);
-[Q]=border(Q);
+% % ÌŞ³ı±ßÔµµã
+[P,p_idx,~]=border(P);
+[Q,q_idx,~]=border(Q);
 
+pn(:,p_idx)=[];
+qn(:,q_idx)=[];
 
-[p0,fep,n1,d1]=keypointOfNormalDotMean(P,pn,k);
-[q0,feq,n2,d2]=keypointOfNormalDotMean(Q,qn,k);
-feq0 = feq;
-
-%»æÖÆ´ÖÌáÈ¡µÄÌØÕ÷µã
-displayer = displayFunction;
-
-% paper = paperISS;
-% global r_P_k r_Q_k;
-% r_P_k = paper.paper(d1) * 5;
-% r_Q_k = paper.paper(d2) * 5;
+% [p0,fep,n1,d1]=keypointOfNormalDotMean(P,pn,k);
+% [q0,feq,n2,d2]=keypointOfNormalDotMean(Q,qn,k);
+% feq0 = feq;
+% %»æÖÆ´ÖÌáÈ¡µÄÌØÕ÷µã
+% displayer = displayFunction;
+% % paper = paperISS;
+% % global r_P_k r_Q_k;
+% % r_P_k = paper.paper(d1) * 5;
+% % r_Q_k = paper.paper(d2) * 5;
   
-displayer.displayFirstPickKeyPoint(p0,q0);
-p0 = P(:,fep);
-q0 = Q(:,feq);
+% displayer.displayFirstPickKeyPoint(p0,q0);
+% p0 = P(:,fep);
+% q0 = Q(:,feq);
+% % »æÖÆ×îÖÕÌáÈ¡µÄÌØÕ÷µã
+% displayer.displayFinalPickKeyPoint(p0,q0);
 
-%»æÖÆ×îÖÕÌáÈ¡µÄÌØÕ÷µã
-displayer.displayFinalPickKeyPoint(p0,q0);
 
-
+% for n=0:50:200
+n=70;
+    [p0,fep,n1,d1]=keypointOfNormalDotMean(P,pn,k,n);
+    [q0,feq,n2,d2]=keypointOfNormalDotMean(Q,qn,k,n);
+    feq0 = feq;
+    
+    %»æÖÆ´ÖÌáÈ¡µÄÌØÕ÷µã
+    displayer = displayFunction;
+    
+    % paper = paperISS;
+    % global r_P_k r_Q_k;
+    % r_P_k = paper.paper(d1) * 5;
+    % r_Q_k = paper.paper(d2) * 5;
+      
+    displayer.displayFirstPickKeyPoint(p0,q0);
+    disp(['´Ö',num2str(n),' : ',num2str(size(p0,2))])
+    
+    
+    p0 = P(:,fep);
+    q0 = Q(:,feq);
+    
+    %»æÖÆ×îÖÕÌáÈ¡µÄÌØÕ÷µã
+    displayer.displayFinalPickKeyPoint(p0,q0);
+    disp(['¾«',num2str(n),' : ',num2str(size(p0,2))])
+% end
 %---------------------------------------------------------------------------------------------
 
 % %%
@@ -166,27 +190,27 @@ end
 
 %---------------------------------------------------------------------------------------
 
-function [P_cloud]=border(P)
+function [P_cloud,indx,No_indx]=border(P)
 
 %-------------------------
 % ÌŞ³ıµô±ß½çµã ½«paperÖĞµÄ·½·¨ÒıÈë
 
 paper = paperISS;
-[~,indx] = paper.borderPoint(P,P,'e_num',15);
+[~,indx,No_indx] = paper.borderPoint(P,P,'e_num',15);
 
 
 %Õ¹Ê¾ÌŞ³ıÇ°ºó±ß½çµÄĞ§¹û
 figure
 plot3(P(1,:),P(2,:),P(3,:),'b.')
 hold on
-plot3(P(1,indx),P(2,indx),P(3,indx),'r.')
+plot3(P(1,No_indx),P(2,No_indx),P(3,No_indx),'r.')
 hold off
-P_cloud=P(:,indx);
+P_cloud=P(:,No_indx);
 %-------------------------
 end
 
 
-function [p0,fep,n1,d1]=keypointOfNormalDotMean(P,pn,k)
+function [p0,fep,n1,d1]=keypointOfNormalDotMean(P,pn,k,n)
 % ·¨ÏòÁ¿ÄÚ»ı¾ùÖµ¼ÆËãÌØÕ÷µãÌáÈ¡
 % ÊäÈëÊı¾İ£º
 %     P  : ÊäÈëµãÔÆÊı¾İ           3 * n
@@ -207,7 +231,12 @@ function [p0,fep,n1,d1]=keypointOfNormalDotMean(P,pn,k)
 
 %% Ñ¡È¡ÌØÕ÷µã
     %´ÖÌáÈ¡
-    ptt=find(pt<mean(pt));                  % ptt£ºptÖĞĞ¡ÓÚÆ½¾ùÖµµÄÁĞÖ¸±ê£¬ĞĞÏòÁ¿
+%     ptt=find(pt<mean(pt));                  % ptt£ºptÖĞĞ¡ÓÚÆ½¾ùÖµµÄÁĞÖ¸±ê£¬ĞĞÏòÁ¿
+
+
+sigma_pt = sqrt(sum((pt-repmat(mean(pt),1,size(pt,2))).^2))/size(pt,2);
+
+    ptt=find(pt<mean(pt)+n*sigma_pt);                  % ptt£ºptÖĞĞ¡ÓÚÆ½¾ùÖµµÄÁĞÖ¸±ê£¬ĞĞÏòÁ¿
     p0=P(:,ptt);                            % ÌáÈ¡PÕóÖĞ Ğ¡ÓÚÌØÕ÷¶ÈÁ¿¾ùÖµ µÄµã
 
     fep=[];                                 % ÌØÕ÷µãÁĞË÷Òı

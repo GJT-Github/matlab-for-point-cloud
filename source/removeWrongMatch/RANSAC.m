@@ -1,4 +1,4 @@
-function [p0,q0,feq,nv] = RANSAC(P,Q,fep,feq,feq0,aa,nv,e_RANSAC_Distance)
+function [feq,nv] = RANSAC(P,Q,fep,feq,feq0,aa,nv,e_RANSAC_Distance)
 % = () ：% 随机采样一致性算法
 %      
 %  输入参数 
@@ -64,8 +64,8 @@ function [p0,q0,feq,nv] = RANSAC(P,Q,fep,feq,feq0,aa,nv,e_RANSAC_Distance)
     feq(c0<1) = [];
     nv(c0<1)  = [];
 
-    p0 = P(:,fep);
-    q0 = Q(:,feq0);
+%     p0 = P(:,fep);
+%     q0 = Q(:,feq0);
 
 
 

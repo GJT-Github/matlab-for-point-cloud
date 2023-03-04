@@ -1,4 +1,4 @@
-function [p0,q0,feq,nv] = RigidInvariantConstraints(P,Q,fep,feq,feq0,nv)
+function [feq,nv] = RigidInvariantConstraints(P,Q,fep,feq,feq0,nv)
 %% [p0,q0,feq,nv] = RigidInvariantConstraints(P,Q,fep,feq,feq0,nv)
 %                   :   刚性不变约束
 %
@@ -46,7 +46,7 @@ num1 = sort(num,'descend');              %sort排序 descend：按照降序排列
 feq(num<num1(10)) = [];                  %根据num<num1(10)条件删除满足条件的关键点指标
 nv(num<num1(10))  = [];                  %根据num<num1(10)条件删除满足条件的描述子指标
 
-p0 = P(:,fep);
-q0 = Q(:,feq0);
+% p0 = P(:,fep);
+% q0 = Q(:,feq0);
 
 end

@@ -116,7 +116,7 @@ function [] = displayFirstPickKeyPoint(p0,q0)
     hold on
     plot3(q0(1,:),q0(2,:),q0(3,:),'b.');
     title('模板点云与目标点云的特征点粗提取')
-    view(3)
+    view(2)
     % daspect([1 1 1]);                      %三维角度出图
 end
 
@@ -136,33 +136,33 @@ function [] = displayFinalPickKeyPoint(p0,q0)
     aplha=0:pi/40:2*pi;
     global r_P_k r_Q_k;
 
-    % 绘制集合球
-    for i=1:3:20 
+    % % 绘制集合球
+    % for i=1:3:20 
 
-        % r=2;        
-        x=r_P_k *cos(aplha) + p0(1,i);
-        y=r_P_k *sin(aplha) + p0(2,i);
-        hold on
-        % plot3(x,y,repmat(int32(p0(3,1)),size(x),1),'b-');
-        plot3(x,y,repelem(p0(3,i),size(x,2)),'b-')
-        plot3(p0(1,i),p0(2,i),p0(3,i),'b*');
+    %     % r=2;        
+    %     x=r_P_k *cos(aplha) + p0(1,i);
+    %     y=r_P_k *sin(aplha) + p0(2,i);
+    %     hold on
+    %     % plot3(x,y,repmat(int32(p0(3,1)),size(x),1),'b-');
+    %     plot3(x,y,repelem(p0(3,i),size(x,2)),'b-')
+    %     plot3(p0(1,i),p0(2,i),p0(3,i),'b*');
 
-        x=r_P_k *cos(aplha) + p0(1,i);
-        z=r_P_k *sin(aplha) + p0(3,i);
-        hold on
-        % plot3(x,y,repmat(int32(p0(3,1)),size(x),1),'b-');
-        plot3(x,repelem(p0(2,i),size(x,2)),z,'b-')
+    %     x=r_P_k *cos(aplha) + p0(1,i);
+    %     z=r_P_k *sin(aplha) + p0(3,i);
+    %     hold on
+    %     % plot3(x,y,repmat(int32(p0(3,1)),size(x),1),'b-');
+    %     plot3(x,repelem(p0(2,i),size(x,2)),z,'b-')
 
-        y=r_P_k *cos(aplha) + p0(2,i);
-        z=r_P_k *sin(aplha) + p0(3,i);
-        hold on
-        % plot3(x,y,repmat(int32(p0(3,1)),size(x),1),'b-');
-        plot3(repelem(p0(1,i),size(x,2)),y,z,'b-')
-        hold off
+    %     y=r_P_k *cos(aplha) + p0(2,i);
+    %     z=r_P_k *sin(aplha) + p0(3,i);
+    %     hold on
+    %     % plot3(x,y,repmat(int32(p0(3,1)),size(x),1),'b-');
+    %     plot3(repelem(p0(1,i),size(x,2)),y,z,'b-')
+    %     hold off
         
-    end
+    % end
 
-        axis equal
+    %     axis equal
         view(2)
 
         % figure(1);
@@ -246,7 +246,7 @@ end
 
 
 %绘制 删除距离大于0.05后的图
-function [] = displayDeleteDisdencePointCloudAndLine(P,Q,p0,q0,fep,feq,nv)
+function [] = displayDeleteDisdencePointCloudAndLine(P,Q,p0,q0,fep,feq,nv,e_dis)
 
     global axe;
 
@@ -263,7 +263,7 @@ function [] = displayDeleteDisdencePointCloudAndLine(P,Q,p0,q0,fep,feq,nv)
         plot3(x,y,z,'g-');
     end
     xlabel('x');ylabel('y');zlabel('z');
-    title('去除距离大于0.05的最近点连线');
+    title(['去除距离大于',num2str(e_dis),'的最近点连线']);
     view(2)
 
 end

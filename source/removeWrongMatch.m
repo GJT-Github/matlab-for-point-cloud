@@ -39,14 +39,14 @@ displayer.displayPointCloudAndLine(P,Q,p0,q0,fep,feq,nv);
 
 %% 1、剔除 距离过远的对应点
 % e_Delet_Distance = 0.05;     %距离阈值
-[p0,q0,feq,nv] = DeleteDisdence(P,Q,fep,feq,feq0,nv,e_Delet_Distance);
+[feq,nv,e_Delet_Distance] = DeleteDisdence(P,Q,fep,feq,feq0,nv);
 
-%绘制 删除距离大于0.05后的图
-displayer.displayDeleteDisdencePointCloudAndLine(P,Q,p0,q0,fep,feq,nv);
-
+% %绘制 删除距离大于0.05后的图
+% displayer.displayDeleteDisdencePointCloudAndLine(P,Q,p0,q0,fep,feq,nv);
+displayer.displayDeleteDisdencePointCloudAndLine(P,Q,p0,q0,fep,feq,nv,e_Delet_Distance);
 
 %% 2、刚性不变约束
-[p0,q0,feq,nv] = RigidInvariantConstraints(P,Q,fep,feq,feq0,nv);
+[feq,nv] = RigidInvariantConstraints(P,Q,fep,feq,feq0,nv);
 
 %出图，更新feq与nv后的关键点及其连线
 displayer.displayRigidInvariantConstraintsPointCloudAndLine(P,Q,p0,q0,fep,feq,nv);
@@ -55,7 +55,7 @@ displayer.displayRigidInvariantConstraintsPointCloudAndLine(P,Q,p0,q0,fep,feq,nv
 %% 3、使用随机抽样一致性算法RANSAC确定匹配关系
 aa = 500;                       %抽样次数
 % e_RANSAC_Distance = 0.005;    %随机采样一致性距离阈值
-[p0,q0,feq,nv] = RANSAC(P,Q,fep,feq,feq0,aa,nv,e_RANSAC_Distance);
+[feq,nv] = RANSAC(P,Q,fep,feq,feq0,aa,nv,e_RANSAC_Distance);
 
 %RANSAC剔除误匹配后的结果绘制
 displayer.displayRANSACPointCloudAndLine(P,Q,p0,q0,fep,feq,nv);

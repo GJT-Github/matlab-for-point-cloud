@@ -38,6 +38,11 @@ function Main                                      % https://blog.csdn.net/weixi
 	k = 8;                                    %邻域选定：8邻域
 	[pn,qn] = normalCaculate(P,Q,k);
 
+%     pn = pcnormals(pointCloud(P'));
+%     qn = pcnormals(pointCloud(Q'));
+%     pn = pn';
+%     qn = qn';
+
 	%绘制目标点云的法向量
 	displayer.displayNormalOnSourcePointCloud(P,pn);
 
@@ -52,39 +57,41 @@ function Main                                      % https://blog.csdn.net/weixi
     % load ../Datas/MatFiles/Normal_pcd.mat         % for Debug
 
 
+
 	% 1、
 	[p0,q0,fep,feq,feq0,n1,d1,n2,d2] = featurePoint(P,Q,pn,qn,k);
     
 
-    % 2、ISS特征点  
-    % Note：1、阈值选取？ 2、取得大多是边缘？ 3、横向对比
-	r  = 0.05;                                 % 邻域半径
-	e1 = 0.7;                                  % 中间特征值与最大特征值之比的 阈值
-	e2 = 0.4;                                  % 中间特征值与最小特征值之比的 阈值  
-
-	%   r  = 0.005;                            % 邻域半径
-	% 	e1 = 0.6;                              % 中间特征值与最大特征值之比的 阈值
-	% 	e2 = 0.3;  
-	% for e1 =0.3:0.2:0.9                      % for Debug e1 和 e2 不同取值关键点影响
-		% for e2 = 0.1:0.1:0.8
-% 		 tic
-% 			[p0,q0,fep,feq,feq0,n1,d1,n2,d2] = keyPointOfISS(P,Q,r,e1,e2);  
-% 		 toc
-		% end
-	% input(string);
-	% close all
-	% end
-
-	% 	mean(d1(2,:))                        % for Debug           
-	% 	mean(d2(2,:))                        % for Debug
-	%   [P_bin,P_max,P_min] = box(P);        % for Debug
-
-
-
-	%绘制最终提取的特征点
-	% displayer.displayFinalPickKeyPoint(p0,q0);
-
-	% save ../Datas/MatFiles/FP.mat           % for Debug
+%     % 2、ISS特征点  
+%     % Note：1、阈值选取？ 2、取得大多是边缘？ 3、横向对比
+% 	r  = 0.05;                                 % 邻域半径
+% 	e1 = 0.7;                                  % 中间特征值与最大特征值之比的 阈值
+% 	e2 = 0.3;                                  % 中间特征值与最小特征值之比的 阈值  
+% 
+% 	%   r  = 0.005;                            % 邻域半径
+% 	% 	e1 = 0.6;                              % 中间特征值与最大特征值之比的 阈值
+% 	% 	e2 = 0.3;  
+% % 	for e1 =0.3:0.2:0.9                      % for Debug e1 和 e2 不同取值关键点影响
+% % 		for e2 = 0.1:0.1:0.8
+% % 		 tic
+% % 			[p0,q0,fep,feq,feq0,n1,d1,n2,d2] = keyPointOfISS(P,Q,r,e1,e2);  
+%             [p0,q0,fep,feq,feq0,n1,d1,n2,d2] = keyPointOfISS(p0,q0,r,e1,e2); 
+% % 		 toc
+% % 		end
+% % 	input(string);
+% % 	close all
+% % 	end
+% 
+% 	% 	mean(d1(2,:))                        % for Debug           
+% 	% 	mean(d2(2,:))                        % for Debug
+% 	%   [P_bin,P_max,P_min] = box(P);        % for Debug
+% 
+% 
+% 
+% 	%绘制最终提取的特征点
+% 	displayer.displayFinalPickKeyPoint(p0,q0);
+% 
+% 	% save ../Datas/MatFiles/FP.mat           % for Debug
 
 
 	%% 特征计算/描述  demo_2
@@ -169,23 +176,25 @@ function Main                                      % https://blog.csdn.net/weixi
 	% clc                                   % for Debug
 	% load ../Datas/MatFiles/CR.mat         % for Debug
 
-    [R_Final,T_Final] = finalResgistration(P,Q1);
+%     [R_Final,T_Final] = finalResgistration(P,Q1);
 
 %     save ../Datas/MatFiles/FR.mat          % for Debug
 
 
 	%% 最终的旋转平移矩阵
     % load ../Datas/MatFiles/FR.mat          % for Debug
-	R = R_Final * R_Coarse;
-	T = R_Final * T_Coarse + T_Final;
-
-	Q1_temp = R_Coarse * Q + T_Coarse * ones( 1 , size( Q , 2 ) );
-    Q2 = R * Q + T * ones( 1 , size( Q , 2 ) );
-% 	H = [R,T;0 0 0 1];                     % P = H * Q  -->  P = R * Q + T
-
-	displayer.displayFinalQ2P(P,Q1_temp);
-    title('粗配准结果')
-	displayer.displayFinalQ2P(P,Q2);
+% 	R = R_Final * R_Coarse;
+% 	T = R_Final * T_Coarse + T_Final;
+% 
+% 	Q1_temp = R_Coarse * Q + T_Coarse * ones( 1 , size( Q , 2 ) );
+%     Q2 = R * Q + T * ones( 1 , size( Q , 2 ) );
+% % 	H = [R,T;0 0 0 1];                     % P = H * Q  -->  P = R * Q + T
+% 
+% 	displayer.displayFinalQ2P(P,Q1_temp);
+%     title('粗配准结果')
+% 	displayer.displayFinalQ2P(P,Q2);
+% 
+%     disp(['final RMSE:',num2str(RMSE(P,Q2))]);
 
 end
 
@@ -198,12 +207,13 @@ function [P,Q] = readPointCloud()
 % 	file1='../Datas/bun045.asc';
 % 	file2='../Datas/bun000.asc';
 
-	% file1='../Datas/rabbit.pcd';
+% 	file1='../Datas/rabbit.pcd';
 	% file2='../Datas/rabbit_z_45.pcd';
+    
 
 	file1='../Datas/sdanford/bun000.ply';
 	file2='../Datas/sdanford/bun045.ply';
-
+%     file1='../Datas/downsample-360-all_xyz.pcd';
 
 % 	S=pcread(file1);
 % 	T=pcread(file2);
@@ -264,3 +274,6 @@ function [R_Final,T_Final]=finalResgistration(targetPointCloud,sourcePointCloud)
 
 
 end
+
+
+
