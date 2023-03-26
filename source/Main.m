@@ -31,7 +31,11 @@ function Main                                      % https://blog.csdn.net/weixi
 	r_P_k = paper.paper(P) * 5;  %0.0083
 	r_Q_k = paper.paper(Q) * 5;  %0.0075
 
-    
+    %%%%%%%%%%%%%%%%%3.13%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    my = myway;
+    my.AverageDisdance(Q)
+
+
 
 	%% 通过8邻域PCA建立 法向量估计 [pn、qn]
 	% PCA法向量估计：某点邻域协方差矩阵最小特征值对应特征向量即该点法向量
@@ -211,9 +215,12 @@ function [P,Q] = readPointCloud()
 	% file2='../Datas/rabbit_z_45.pcd';
     
 
-	file1='../Datas/sdanford/bun000.ply';
-	file2='../Datas/sdanford/bun045.ply';
+% 	file1='../Datas/sdanford/bun000.ply';
+% 	file2='../Datas/sdanford/bun045.ply';
 %     file1='../Datas/downsample-360-all_xyz.pcd';
+
+	file1='../Datas/rs1.pcd';
+	file2='../Datas/rs1_2.pcd';
 
 % 	S=pcread(file1);
 % 	T=pcread(file2);

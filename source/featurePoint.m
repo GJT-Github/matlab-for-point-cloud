@@ -24,11 +24,41 @@ function [p0,q0,fep,feq,feq0,n1,d1,n2,d2]= featurePoint(P,Q,pn,qn,k)      %ÌØÕ÷µ
 %  E-mail£ºgjt0114@outlook.com
 
 % % ÌÞ³ý±ßÔµµã
-[P,p_idx,~]=border(P);
-[Q,q_idx,~]=border(Q);
+% P_old = P;
+% Q_old = Q;
+
+% [P,p_idx,~]=border(P,150);
+% [Q,q_idx,~]=border(Q,200);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%3.24%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%³öÍ¼ÓÃ
+% for i=1:4
+%    [P_mvBor,p_idx,~]=border(P,i*50,1,i);
+% end
+for i=1:4
+   [Q_mvBor,q_idx,~]=border(Q,100+i*50,2,i);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 pn(:,p_idx)=[];
 qn(:,q_idx)=[];
+
+%%%%%%%%%%%%%%%%%%%%%%%3.17:save rs1_1%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% a=pointCloud(P');
+% pcwrite(a,'rm_rs_1.pcd');
+% a_b=pointCloud(P_old(:,p_idx)');
+% pcwrite(a_b,'bor_rs_1.pcd');
+% 
+% b=pointCloud(Q');
+% pcwrite(b,'rm_rs_2.pcd');
+% b_b=pointCloud(Q_old(:,q_idx)');
+% pcwrite(b_b,'bor_rs_2.pcd');
+% 
+% clean a,a_b,b,b_b,P_old,Q_old
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 % [p0,fep,n1,d1]=keypointOfNormalDotMean(P,pn,k);
 % [q0,feq,n2,d2]=keypointOfNormalDotMean(Q,qn,k);
@@ -189,14 +219,18 @@ n=70;
 end
 
 %---------------------------------------------------------------------------------------
+% function [P_cloud,indx,No_indx]=border(P,e_num)
 
-function [P_cloud,indx,No_indx]=border(P)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%3.24%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [P_cloud,indx,No_indx]=border(P,e_num,i,j)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %-------------------------
 % ÌÞ³ýµô±ß½çµã ½«paperÖÐµÄ·½·¨ÒýÈë
 
 paper = paperISS;
-[~,indx,No_indx] = paper.borderPoint(P,P,'e_num',15);
+[~,indx,No_indx] = paper.borderPoint(P,P,'e_num',e_num);  %15
 
 
 %Õ¹Ê¾ÌÞ³ýÇ°ºó±ß½çµÄÐ§¹û
@@ -206,6 +240,17 @@ hold on
 plot3(P(1,No_indx),P(2,No_indx),P(3,No_indx),'r.')
 hold off
 P_cloud=P(:,No_indx);
+
+%%%%%%%%%%%%%%%%%%%%%%%3.24%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%±£´æ³öÍ¼
+P_No = pointCloud(P(:,No_indx)');
+P_In = pointCloud(P(:,indx)');
+pcwrite(P_No,"../Datas/rs" + num2str(i) + "_No_" + num2str(j) + ".pcd");
+pcwrite(P_In,"../Datas/rs" + num2str(i) + "_In_" + num2str(j) + ".pcd");
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 %-------------------------
 end
 

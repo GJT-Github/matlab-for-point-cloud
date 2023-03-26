@@ -3,6 +3,7 @@ function  paperFunction = paperISS
 
 paperFunction.paper =@paper;
 paperFunction.borderPoint =@borderPoint;
+% paperFunction.myway =@myway;
 
 end
 
@@ -38,6 +39,36 @@ function [r_k]=paper(P)
 end
 
 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%3.13%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% function [r_k]=myway(P)
+% %Date :
+
+%     k = 20;                                 %领域值
+%     [~,d1]=knnsearch(transpose(P), transpose(P), 'k', k+1); 
+
+%     d1 = d1';
+%     d_near = d1(2,:);                       %最近点            a
+%     d_no_self = d1(2:k+1,:);
+
+%     mean_k_neighbor = mean(d_no_self,1);    %20邻域距离均值
+%     StandardDeviation_k_neighbor = sqrt(mean((d_no_self - repmat(mean_k_neighbor,k,1)).^2));     %标准差
+
+%     n=1;
+%     %取出[μ-n*σ,μ+n*σ]内的点
+%     index_low_to_max_range  = (d_no_self <=  repmat(mean_k_neighbor + n * StandardDeviation_k_neighbor,k,1));
+%     low_to_max_range        = index_low_to_max_range.*d_no_self;
+%     index_in_range          = (low_to_max_range >=  repmat(mean_k_neighbor - n * StandardDeviation_k_neighbor,k,1));
+%     in_range                = index_in_range.*d_no_self;
+
+%     sum_num_in_range        = sum(index_in_range,1); 
+%     distance_every_neighbor = sum(in_range,1)./sum_num_in_range;
+
+%     r_k=mean(distance_every_neighbor);
+% end
+
+
+
 function [border_point,indx_border,No_indx_border] = borderPoint(P,p0,varargin)
     % P             : 输入 3 * n 点云
     % border_point  ：输出 3 * m 边界内或边界外点
@@ -58,7 +89,7 @@ function [border_point,indx_border,No_indx_border] = borderPoint(P,p0,varargin)
         %构建KDtree
         NS = createns(P','NSMethod','kdtree');
         %半径检索
-        r_border = longline/100;                       % rabit 0.3   
+        r_border = longline/60;                       % rabit 0.3   100   
         [idx_border,dis_border] = rangesearch(NS,p0',r_border);
         %统计r_border半径下点数
         for i=1:size(idx_border,1)
